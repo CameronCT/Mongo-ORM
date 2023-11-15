@@ -1,10 +1,11 @@
+import FieldTypes from "mongoorm/FieldTypes";
 import Model from "mongoorm/Model";
 
-const User = new Model("User", [
-    { name: "name", type: "string", required: true },
-    { name: "email", type: "string", required: true },
-    { name: "password", type: "string", required: true },
-    { name: "updated_at", type: "date", default: new Date() }
+const User = new Model("users", [
+    { name: "name", type: FieldTypes.String, required: true },
+    { name: "email", type: FieldTypes.String, required: true },
+    { name: "password", type: FieldTypes.String, required: true },
+    { name: "type", type: FieldTypes.String, default: "basic" },
 ], [ 
     { name: "uniqueEmail", fields: { email: "text" } },
 ], { 
