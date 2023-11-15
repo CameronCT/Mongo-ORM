@@ -1,16 +1,25 @@
 import { Db } from "@rakered/mongo";
 import Connection from "./Connection";
-import { FieldOptions, IndexOptions } from "./types";
+import Message from "./Message";
+import { FieldOptions, IndexOptions, OtherOptions } from "./types";
 
 class Model {
     private $name: string = '';
     private $fieldOptions: FieldOptions[] = [];
     private $indexOptions: IndexOptions[] = [];
+    private $otherOptions: OtherOptions = {
+        debug: false,
+        log: -1
+    }
 
-    constructor(name: string, fieldOptions: FieldOptions[], indexOptions: IndexOptions[]) {
+    constructor(name: string, fieldOptions: FieldOptions[], indexOptions: IndexOptions[], otherOptions?: OtherOptions) {
         this.$name = String(name).toLowerCase();
         this.$fieldOptions = fieldOptions;
         this.$indexOptions = indexOptions;
+        this.$otherOptions = { 
+            debug: otherOptions?.debug || false,
+            log: otherOptions?.log || -1
+        };
     }
 
     private async generateIndexes() {
@@ -20,57 +29,79 @@ class Model {
             if (index.name) params.name = index.name;
             await Connection.$mongoConnection[this.$name].createIndex(index.fields, { ...params });
         });
-        console.log(`[Mongo-ORM] Generated indexes for ${this.$name}.`);
+        Message(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`)
     }
 
-    async aggregate(filter: any, options: any = {}): Promise<null | any> {
-        return await Connection.$mongoConnection[this.$name].aggregate(filter, options)
+    private async dispatchAction(action: any, query: any = {}) {
+        if (this.$otherOptions.debug) {
+            const start = new Date().getTime();
+            const result = await action;
+            const end = new Date().getTime();
+            const total = end - start;
+
+            if (this.$otherOptions.log !== -1 && total > this.$otherOptions.log) {
+                Connection.$mongoConnection['_mongoOrmDebug'].insertOne({
+                    model: this.$name,
+                    query: JSON.stringify(query, null, 2),
+                    time: total,
+                    date: new Date()
+                })
+            }
+            Message(`Operation took ${total}ms.`);
+
+            return result;
+        } else 
+            return await action();
     }
 
-    async findOne(filter: any, options: any = {}): Promise<null | any> {
-        return await Connection.$mongoConnection[this.$name].findOne(filter, options)
+    async aggregate(query: any, options: any = {}): Promise<null | any> {
+        return await this.dispatchAction(await Connection.$mongoConnection[this.$name].aggregate(query, options), query)
+    }
+
+    async findOne(query: any, options: any = {}): Promise<null | any> {
+        return await this.dispatchAction(await Connection.$mongoConnection[this.$name].findOne(query, options), query)
     }
 
     async find(query: any, options: any = {}): Promise<null | any[]> {
-        return await Connection.$mongoConnection[this.$name].find(query, options)
+        return await this.dispatchAction(await Connection.$mongoConnection[this.$name].find(query, options), query)
     }
 
     async count(query: any): Promise<null | any> {
-        return await Connection.$mongoConnection[this.$name].countDocuments(query)
+        return await this.dispatchAction(await Connection.$mongoConnection[this.$name].countDocuments(query), query)
     }
 
-    async findOneAndUpdate(filter: any, update: any, upsert: boolean = false, useModifier: string = '$set'): Promise<null | any[] | any> {
-        const result = await Connection.$mongoConnection[this.$name].findOneAndUpdate(filter, { [useModifier]: update }, { upsert: upsert, returnDocument: 'after' })
+    async findOneAndUpdate(query: any, update: any, upsert: boolean = false, useModifier: string = '$set'): Promise<null | any[] | any> {
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: update }, { upsert: upsert, returnDocument: 'after' }), query)
         if (result && result.ok) return result.value
         else return null
     }
 
-    async updateMany(filter: any, document: any): Promise<null | any> {
-        const result = await Connection.$mongoConnection[this.$name].updateMany(filter, { $set: document })
+    async updateMany(query: any, document: any): Promise<null | any> {
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].updateMany(query, { $set: document }), query)
         if (result) return true
         else return null
     }
 
-    async deleteMany(filter: any): Promise<null | any> {
-        const result = await Connection.$mongoConnection[this.$name].deleteMany(filter)
+    async deleteMany(query: any): Promise<null | any> {
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].deleteMany(query))
         if (result) return true
         else return null
     }
 
-    async deleteOne(filter: any): Promise<null | any> {
-        const result = await Connection.$mongoConnection[this.$name].deleteOne(filter)
+    async deleteOne(query: any): Promise<null | any> {
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].deleteOne(query))
         if (result) return true
         else return null
     }
 
     async insertOne(document: any): Promise<null | any> {
-        const result = await Connection.$mongoConnection[this.$name].insertOne(document)
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].insertOne(document))
         if (result && result.insertedCount >= 1) return result.ops[0]
         else return null
     }
 
      async insertMany(document: any): Promise<null | any> {
-        const result = await Connection.$mongoConnection[this.$name].insertMany(document)
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].insertMany(document))
         if (result && result.insertedCount >= 1) return result.ops[0]
         else return null
     }
@@ -78,8 +109,8 @@ class Model {
     /*
     * Custom Methods
     */
-     async findOneOrCreate(filter: any, document: any | null = null): Promise<null | any> {
-        const findOne = await Connection.$mongoConnection[this.$name].findOne(filter)
+     async findOneOrCreate(query: any, document: any | null = null): Promise<null | any> {
+        const findOne = await this.dispatchAction(await Connection.$mongoConnection[this.$name].findOne(query), query)
         if (findOne) return findOne
         else {
             const insert = await Connection.$mongoConnection[this.$name].insertOne(document)

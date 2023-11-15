@@ -1,5 +1,6 @@
 import { create as MongoCreate, Db } from '@rakered/mongo'
 import Model from './Model'
+import Message from './Message'
 import fs from 'fs'
 import path from 'path';
 
@@ -24,13 +25,12 @@ class Connection {
                     Connection.$models.push(ModelClass);
                 })
             } catch (e) {
-                console.log(e);
-                throw Error(`Unable to load models folder!`);
+                Message(String(e).toString(), true);
             }
-            console.log('Connected to DB');
+            Message(`Connection Initialized (${Connection.$models.length} models)!`);
             return Connection.$mongoConnection
         } else
-            throw Error('Unable to connect to MongoDB from MongoSQL!')
+            Message("Unable to connect to MongoDB!", true);
     }
 
     public static sanitize(v: any) {

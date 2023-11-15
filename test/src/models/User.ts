@@ -7,6 +7,9 @@ const User = new Model("User", [
     { name: "updated_at", type: "date", default: new Date() }
 ], [ 
     { name: "uniqueEmail", fields: { email: "text" } },
-])
+], { 
+    debug: true,
+    log: 0
+})
 
 export default User;

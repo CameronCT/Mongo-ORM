@@ -20,3 +20,8 @@ export interface IndexOptions {
     fields: { [key: string]: "text" | number };
     unique?: boolean;
 }
+
+export interface OtherOptions {
+    log: number;
+    debug?: boolean;
+}
