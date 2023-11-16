@@ -1,6 +1,23 @@
 import Connection from './Connection';
 import Message from './Message';
-import { FieldOptions, IndexOptions, OtherOptions } from './types';
+import {
+  FieldOptions,
+  IndexOptions,
+  OtherOptions,
+  MongoAggregate,
+  MongoFindOne,
+  MongoFind,
+  MongoCount,
+  MongoFindOneAndUpdate,
+  MongoUpdateOne,
+  MongoUpdateMany,
+  MongoInsertOne,
+  MongoInsertMany,
+  MongoDelete,
+  MongoFindOneOrCreate,
+  MongoQuery,
+  MongoDocument
+} from './types';
 import FieldTypes from './FieldTypes';
 
 class Model {
@@ -37,7 +54,7 @@ class Model {
     Message(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`);
   }
 
-  private async dispatchAction(fn: () => Promise<any | void>, query: any = {}) {
+  private async dispatchAction(fn: () => Promise<any>, query: MongoQuery = {}) {
     if (this.$otherOptions.debug) {
       const start = new Date().getTime();
       const result = await fn();
@@ -75,8 +92,8 @@ class Model {
       throw new Error(`Field is of type objectId but the default value is not a string or null.`);
   };
 
-  private processDocument = (document: any, isUpdate: boolean = false) => {
-    const processedDocument: any = {};
+  private processDocument = (document: MongoDocument, isUpdate: boolean = false) => {
+    const processedDocument: MongoDocument = {};
     const fieldLength = this.$fieldOptions.length;
 
     for (let i = 0; i < fieldLength; i++) {
@@ -106,23 +123,23 @@ class Model {
     return processedDocument;
   };
 
-  async aggregate(query: any, options: any = {}): Promise<null | any> {
+  aggregate: MongoAggregate = async (query, options) => {
     return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].aggregate(query, options), query);
-  }
+  };
 
-  async findOne(query: any, options: any = {}): Promise<null | any> {
+  findOne: MongoFindOne = async (query, options) => {
     return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].findOne(query, options), query);
-  }
+  };
 
-  async find(query: any, options: any = {}): Promise<null | any[]> {
+  find: MongoFind = async (query, options) => {
     return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].find(query, options), query);
-  }
+  };
 
-  async count(query: any): Promise<null | any> {
+  count: MongoCount = async (query) => {
     return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].countDocuments(query), query);
-  }
+  };
 
-  async findOneAndUpdate(query: any, update: any, upsert: boolean = false, useModifier: string = '$set'): Promise<null | any[] | any> {
+  findOneAndUpdate: MongoFindOneAndUpdate = async (query, update, upsert = false, useModifier = '$set') => {
     const result = await this.dispatchAction(
       async () =>
         await Connection.$mongoConnection[this.$name].findOneAndUpdate(
@@ -134,67 +151,64 @@ class Model {
     );
     if (result && result.ok) return result.value;
     else return null;
-  }
+  };
 
-  async updateOne(query: any, update: any, upsert: boolean = false, useModifier: string = '$set'): Promise<null | any> {
+  updateOne: MongoUpdateOne = async (query, update, upsert = false, useModifier = '$set') => {
     const result = await this.dispatchAction(
       async () =>
         await Connection.$mongoConnection[this.$name].updateOne(
           query,
           { [useModifier]: this.processDocument(update, true) },
+          // @ts-expect-error - Legacy option using @rakered
           { upsert: upsert, returnDocument: 'after' }
         ),
       query
     );
     if (result && result.ok) return result.value;
     else return null;
-  }
+  };
 
-  async updateMany(query: any, document: any, useModifier: string = '$set'): Promise<null | any> {
+  updateMany: MongoUpdateMany = async (query, document, useModifier = '$set') => {
     const result = await this.dispatchAction(
       async () => await Connection.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document, true) }),
       query
     );
     if (result) return true;
     else return null;
-  }
+  };
 
-  async deleteMany(query: any): Promise<null | any> {
+  deleteMany: MongoDelete = async (query) => {
     const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].deleteMany(query));
-    if (result) return true;
-    else return null;
-  }
+    return result ? true : null;
+  };
 
-  async deleteOne(query: any): Promise<null | any> {
+  deleteOne: MongoDelete = async (query) => {
     const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].deleteOne(query));
-    if (result) return true;
-    else return null;
-  }
+    return result ? true : null;
+  };
 
-  async insertOne(document: any): Promise<null | any> {
+  insertOne: MongoInsertOne = async (document) => {
     const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].insertOne(this.processDocument(document)));
-    if (result && result.insertedCount >= 1) return result.ops[0];
-    else return null;
-  }
+    return result && result.insertedCount >= 1 ? result.ops[0] : null;
+  };
 
-  async insertMany(document: any): Promise<null | any> {
-    const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].insertMany(this.processDocument(document)));
-    if (result && result.insertedCount >= 1) return result.ops[0];
-    else return null;
-  }
+  insertMany: MongoInsertMany = async (documents) => {
+    const result = await this.dispatchAction(
+      async () => await Connection.$mongoConnection[this.$name].insertMany(documents.map((doc) => this.processDocument(doc)))
+    );
+    return result && result.insertedCount >= 1 ? result.ops[0] : null;
+  };
 
-  /*
-   * Custom Methods
-   */
-  async findOneOrCreate(query: any, document: any | null = null): Promise<null | any> {
+  findOneOrCreate: MongoFindOneOrCreate = async (query, document) => {
     const findOne = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].findOne(query), query);
     if (findOne) return findOne;
     else {
       const insert = await Connection.$mongoConnection[this.$name].insertOne(this.processDocument(document));
+      // @ts-expect-error - Legacy option using @rakered
       if (insert && insert.insertedCount >= 1) return insert.ops[0];
       else return null;
     }
-  }
+  };
 }
 
 export default Model;

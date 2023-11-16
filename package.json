@@ -47,5 +47,11 @@
     "prettier": "^3.1.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
+  },
+  "peerDependencies": {
+    "mongodb": "^6.2.0"
+  },
+  "engines": {
+    "node": ">=16.20.1"
   }
 }

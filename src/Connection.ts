@@ -3,6 +3,7 @@ import Model from './Model';
 import Message from './Message';
 import fs from 'fs';
 import path from 'path';
+import { DefaultValue } from './types';
 
 class Connection {
   static $mongoConnection: Db;
@@ -11,6 +12,7 @@ class Connection {
   constructor(uri?: string, modelPath?: string) {
     const useModelPath = modelPath || path.join(process.cwd(), './src/models');
     Connection.$mongoConnection = MongoCreate(!uri ? 'mongodb://127.0.0.1:27017/newapp' : uri, {
+      // @ts-expect-error - Legacy option using @rakered
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
@@ -32,7 +34,7 @@ class Connection {
     } else Message('Unable to connect to MongoDB!', true);
   }
 
-  public static sanitize(v: any) {
+  public static sanitize(v: DefaultValue) {
     if (v instanceof Object) {
       for (const key in v) {
         if (/^\$/.test(key)) {
