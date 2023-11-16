@@ -85,7 +85,7 @@ class Model {
                 else if (field.type === FieldTypes.Array && !Array.isArray(document[field.name])) processedDocument[field.name] = Array(document[field.name]);
                 else if (field.type === FieldTypes.Object) processedDocument[field.name] = Object(document[field.name]);
                 else processedDocument[field.name] = document[field.name];
-            } else if (field.default) {
+            } else if (typeof field.default !== 'undefined') {
                 if (field.type === FieldTypes.Date) processedDocument[field.name] = new Date(field.default);
                 else if (field.type === FieldTypes.Number) processedDocument[field.name] = Number(field.default);
                 else if (field.type === FieldTypes.Boolean) processedDocument[field.name] = Boolean(field.default);

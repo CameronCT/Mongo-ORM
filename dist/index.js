@@ -34883,7 +34883,7 @@ var Model = class {
             processedDocument[field.name] = Object(document[field.name]);
           else
             processedDocument[field.name] = document[field.name];
-        } else if (field.default) {
+        } else if (typeof field.default !== "undefined") {
           if (field.type === FieldTypes_default.Date)
             processedDocument[field.name] = new Date(field.default);
           else if (field.type === FieldTypes_default.Number)
