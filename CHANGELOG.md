@@ -7,11 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2023-11-16
+
 - Added ESLint
 - Added Prettier
 - Added Better Typed definitions to Model
+- Added enhanced documentation (WIP)
 
-## [0.1.2] - 2023-11-15
+## [0.1.4] - 2023-11-15
 
 ### Fixed
 
