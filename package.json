@@ -1,5 +1,5 @@
 {
-  "name": "mongo-orm",
+  "name": "@cameronct/mongo-orm",
   "version": "0.1.0",
   "description": "",
   "main": "./dist/index.js",

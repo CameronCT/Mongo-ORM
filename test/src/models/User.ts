@@ -1,4 +1,4 @@
-import MongoORM from 'mongo-orm';
+import MongoORM from '@cameronct/mongo-orm';
 
 const User = new MongoORM.Model("users", [
     { name: "name", type: MongoORM.FieldTypes.String, required: true },
