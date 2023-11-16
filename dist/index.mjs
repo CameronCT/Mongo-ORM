@@ -34843,20 +34843,20 @@ var Model = class {
     this.processDefault = (field) => {
       if (typeof field.default === "undefined")
         return;
-      if (field.type === FieldTypes_default.String && typeof field.default !== "string")
-        throw new Error(`Field is of type string but the default value is not a string.`);
-      else if (field.type === FieldTypes_default.Number && typeof field.default !== "number")
-        throw new Error(`Field is of type number but the default value is not a number.`);
+      if (field.type === FieldTypes_default.String && typeof field.default !== "string" && field.default !== null)
+        throw new Error(`Field is of type string but the default value is not a string or null.`);
+      else if (field.type === FieldTypes_default.Number && typeof field.default !== "number" && field.default !== null)
+        throw new Error(`Field is of type number but the default value is not a number or null.`);
       else if (field.type === FieldTypes_default.Boolean && typeof field.default !== "boolean")
         throw new Error(`Field is of type boolean but the default value is not a boolean.`);
       else if (field.type === FieldTypes_default.Date && !(field.default instanceof Date))
         throw new Error(`Field is of type date but the default value is not a date.`);
       else if (field.type === FieldTypes_default.Array && !Array.isArray(field.default))
         throw new Error(`Field is of type array but the default value is not an array.`);
-      else if (field.type === FieldTypes_default.Object && typeof field.default !== "object")
-        throw new Error(`Field is of type object but the default value is not an object.`);
-      else if (field.type === FieldTypes_default.ObjectId && typeof field.default !== "string")
-        throw new Error(`Field is of type objectId but the default value is not a string.`);
+      else if (field.type === FieldTypes_default.Object && typeof field.default !== "object" && field.default !== null)
+        throw new Error(`Field is of type object but the default value is not an object or null.`);
+      else if (field.type === FieldTypes_default.ObjectId && typeof field.default !== "string" && field.default !== null)
+        throw new Error(`Field is of type objectId but the default value is not a string or null.`);
     };
     this.processDocument = (document, isUpdate = false) => {
       const processedDocument = {};
@@ -34923,10 +34923,10 @@ var Model = class {
     });
     Message_default(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`);
   }
-  async dispatchAction(action, query = {}) {
+  async dispatchAction(fn, query = {}) {
     if (this.$otherOptions.debug) {
       const start = (/* @__PURE__ */ new Date()).getTime();
-      const result = await action;
+      const result = await fn();
       const end = (/* @__PURE__ */ new Date()).getTime();
       const total = end - start;
       if (this.$otherOptions.log !== -1 && total > this.$otherOptions.log) {
@@ -34938,65 +34938,66 @@ var Model = class {
         });
       }
       return result;
-    } else
-      return await action();
+    } else {
+      return await fn();
+    }
   }
   async aggregate(query, options = {}) {
-    return await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].aggregate(query, options), query);
+    return await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].aggregate(query, options), query);
   }
   async findOne(query, options = {}) {
-    return await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].findOne(query, options), query);
+    return await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].findOne(query, options), query);
   }
   async find(query, options = {}) {
-    return await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].find(query, options), query);
+    return await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].find(query, options), query);
   }
   async count(query) {
-    return await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].countDocuments(query), query);
+    return await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].countDocuments(query), query);
   }
   async findOneAndUpdate(query, update, upsert = false, useModifier = "$set") {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: this.processDocument(update, true) }, { upsert, returnDocument: "after" }), query);
+    const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: this.processDocument(update, true) }, { upsert, returnDocument: "after" }), query);
     if (result && result.ok)
       return result.value;
     else
       return null;
   }
   async updateOne(query, update, upsert = false, useModifier = "$set") {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].updateOne(query, { [useModifier]: this.processDocument(update, true) }, { upsert, returnDocument: "after" }), query);
+    const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].updateOne(query, { [useModifier]: this.processDocument(update, true) }, { upsert, returnDocument: "after" }), query);
     if (result && result.ok)
       return result.value;
     else
       return null;
   }
   async updateMany(query, document, useModifier = "$set") {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document, true) }), query);
+    const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document, true) }), query);
     if (result)
       return true;
     else
       return null;
   }
   async deleteMany(query) {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].deleteMany(query));
+    const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].deleteMany(query));
     if (result)
       return true;
     else
       return null;
   }
   async deleteOne(query) {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].deleteOne(query));
+    const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].deleteOne(query));
     if (result)
       return true;
     else
       return null;
   }
   async insertOne(document) {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].insertOne(this.processDocument(document)));
+    const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].insertOne(this.processDocument(document)));
     if (result && result.insertedCount >= 1)
       return result.ops[0];
     else
       return null;
   }
   async insertMany(document) {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].insertMany(this.processDocument(document)));
+    const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].insertMany(this.processDocument(document)));
     if (result && result.insertedCount >= 1)
       return result.ops[0];
     else
@@ -35006,7 +35007,7 @@ var Model = class {
   * Custom Methods
   */
   async findOneOrCreate(query, document = null) {
-    const findOne = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].findOne(query), query);
+    const findOne = await this.dispatchAction(async () => await Connection_default.$mongoConnection[this.$name].findOne(query), query);
     if (findOne)
       return findOne;
     else {

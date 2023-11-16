@@ -38,10 +38,10 @@ class Model {
         Message(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`)
     }
 
-    private async dispatchAction(action: any, query: any = {}) {
+    private async dispatchAction(fn: () => Promise<any | void>, query: any = {}) {
         if (this.$otherOptions.debug) {
             const start = new Date().getTime();
-            const result = await action;
+            const result = await fn();
             const end = new Date().getTime();
             const total = end - start;
 
@@ -51,23 +51,24 @@ class Model {
                     query: JSON.stringify(query, null, 2),
                     time: total,
                     date: new Date()
-                })
+                });
             }
             return result;
-        } else 
-            return await action();
+        } else {
+            return await fn();
+        }
     }
 
     private processDefault = (field: FieldOptions) => {
         if (typeof field.default === 'undefined') return;
 
-        if (field.type === FieldTypes.String && typeof field.default !== 'string') throw new Error(`Field is of type string but the default value is not a string.`);
-        else if (field.type === FieldTypes.Number && typeof field.default !== 'number') throw new Error(`Field is of type number but the default value is not a number.`);
+        if (field.type === FieldTypes.String && typeof field.default !== 'string' && field.default !== null) throw new Error(`Field is of type string but the default value is not a string or null.`);
+        else if (field.type === FieldTypes.Number && typeof field.default !== 'number' && field.default !== null) throw new Error(`Field is of type number but the default value is not a number or null.`);
         else if (field.type === FieldTypes.Boolean && typeof field.default !== 'boolean') throw new Error(`Field is of type boolean but the default value is not a boolean.`);
         else if (field.type === FieldTypes.Date && !(field.default instanceof Date)) throw new Error(`Field is of type date but the default value is not a date.`);
         else if (field.type === FieldTypes.Array && !Array.isArray(field.default)) throw new Error(`Field is of type array but the default value is not an array.`);
-        else if (field.type === FieldTypes.Object && typeof field.default !== 'object') throw new Error(`Field is of type object but the default value is not an object.`);
-        else if (field.type === FieldTypes.ObjectId && typeof field.default !== 'string') throw new Error(`Field is of type objectId but the default value is not a string.`);
+        else if (field.type === FieldTypes.Object && typeof field.default !== 'object' && field.default !== null) throw new Error(`Field is of type object but the default value is not an object or null.`);
+        else if (field.type === FieldTypes.ObjectId && typeof field.default !== 'string' && field.default !== null) throw new Error(`Field is of type objectId but the default value is not a string or null.`);
     }   
 
     private processDocument = (document: any, isUpdate: boolean = false) => {
@@ -102,59 +103,59 @@ class Model {
     }
 
     async aggregate(query: any, options: any = {}): Promise<null | any> {
-        return await this.dispatchAction(await Connection.$mongoConnection[this.$name].aggregate(query, options), query)
+        return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].aggregate(query, options), query)
     }
 
     async findOne(query: any, options: any = {}): Promise<null | any> {
-        return await this.dispatchAction(await Connection.$mongoConnection[this.$name].findOne(query, options), query)
+        return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].findOne(query, options), query)
     }
 
     async find(query: any, options: any = {}): Promise<null | any[]> {
-        return await this.dispatchAction(await Connection.$mongoConnection[this.$name].find(query, options), query)
+        return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].find(query, options), query)
     }
 
     async count(query: any): Promise<null | any> {
-        return await this.dispatchAction(await Connection.$mongoConnection[this.$name].countDocuments(query), query)
+        return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].countDocuments(query), query)
     }
 
     async findOneAndUpdate(query: any, update: any, upsert: boolean = false, useModifier: string = '$set'): Promise<null | any[] | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: this.processDocument(update, true) }, { upsert: upsert, returnDocument: 'after' }), query)
+        const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: this.processDocument(update, true) }, { upsert: upsert, returnDocument: 'after' }), query)
         if (result && result.ok) return result.value
         else return null
     }
 
     async updateOne(query: any, update: any, upsert: boolean = false, useModifier: string = '$set'): Promise<null | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].updateOne(query, { [useModifier]: this.processDocument(update, true) }, { upsert: upsert, returnDocument: 'after' }), query)
+        const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].updateOne(query, { [useModifier]: this.processDocument(update, true) }, { upsert: upsert, returnDocument: 'after' }), query)
         if (result && result.ok) return result.value
         else return null
     };
 
     async updateMany(query: any, document: any, useModifier: string = '$set'): Promise<null | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document, true) }), query)
+        const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document, true) }), query)
         if (result) return true
         else return null
     }
 
     async deleteMany(query: any): Promise<null | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].deleteMany(query))
+        const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].deleteMany(query))
         if (result) return true
         else return null
     }
 
     async deleteOne(query: any): Promise<null | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].deleteOne(query))
+        const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].deleteOne(query))
         if (result) return true
         else return null
     }
 
     async insertOne(document: any): Promise<null | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].insertOne(this.processDocument(document)))
+        const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].insertOne(this.processDocument(document)))
         if (result && result.insertedCount >= 1) return result.ops[0]
         else return null
     }
 
      async insertMany(document: any): Promise<null | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].insertMany(this.processDocument(document)))
+        const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].insertMany(this.processDocument(document)))
         if (result && result.insertedCount >= 1) return result.ops[0]
         else return null
     }
@@ -163,7 +164,7 @@ class Model {
     * Custom Methods
     */
      async findOneOrCreate(query: any, document: any | null = null): Promise<null | any> {
-        const findOne = await this.dispatchAction(await Connection.$mongoConnection[this.$name].findOne(query), query)
+        const findOne = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].findOne(query), query)
         if (findOne) return findOne
         else {
             const insert = await Connection.$mongoConnection[this.$name].insertOne(this.processDocument(document))
