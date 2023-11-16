@@ -6,7 +6,7 @@ An insanely basic implementation of some form of Object Relational Mapping for M
 
 To get started you must install the package via your dependency manager (you can use yarn as well)
 
-`npm install mongo-orm`
+`npm install @cameronct/mongo-orm`
 
 ### Initiating the Connection
 
