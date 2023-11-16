@@ -1,4 +1,4 @@
-import { create as MongoCreate, Db } from '@rakered/mongo';
+import { Db, MongoClient } from "mongodb";
 import Model from './Model';
 import Message from './Message';
 import fs from 'fs';
@@ -11,27 +11,27 @@ class Connection {
 
   constructor(uri?: string, modelPath?: string) {
     const useModelPath = modelPath || path.join(process.cwd(), './src/models');
-    Connection.$mongoConnection = MongoCreate(!uri ? 'mongodb://127.0.0.1:27017/newapp' : uri, {
-      // @ts-expect-error - Legacy option using @rakered
-      useNewUrlParser: true,
-      useUnifiedTopology: true
+    const client = new MongoClient(!uri ? 'mongodb://127.0.0.1:27017/newapp' : uri);
+    client.connect().then(() => {
+      Connection.$mongoConnection = client.db();
+      
+      if (Connection.$mongoConnection) {
+        // Get all Models in Models Folder and Initialize Class
+        try {
+          const getModelsFromFolder = fs.readdirSync(useModelPath);
+          getModelsFromFolder.forEach((model) => {
+            const modelPath = path.join(useModelPath, model);
+            const ModelClass = require(modelPath).default;
+            ModelClass.generateIndexes();
+            Connection.$models.push(ModelClass);
+          });
+        } catch (e) {
+          Message(String(e).toString(), true);
+        }
+        Message(`Connection Initialized (${Connection.$models.length} models)!`);
+        return Connection.$mongoConnection;
+      } else Message('Unable to connect to MongoDB!', true);
     });
-    if (Connection.$mongoConnection) {
-      // Get all Models in Models Folder and Initialize Class
-      try {
-        const getModelsFromFolder = fs.readdirSync(useModelPath);
-        getModelsFromFolder.forEach((model) => {
-          const modelPath = path.join(useModelPath, model);
-          const ModelClass = require(modelPath).default;
-          ModelClass.generateIndexes();
-          Connection.$models.push(ModelClass);
-        });
-      } catch (e) {
-        Message(String(e).toString(), true);
-      }
-      Message(`Connection Initialized (${Connection.$models.length} models)!`);
-      return Connection.$mongoConnection;
-    } else Message('Unable to connect to MongoDB!', true);
   }
 
   public static sanitize(v: DefaultValue) {

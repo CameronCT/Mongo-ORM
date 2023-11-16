@@ -13,10 +13,11 @@ app.get('/test-db', async (req, res) => {
   const useEmail = `t2${getTimestamp}.${getRandom}@example.com`;
   console.log(`Attempting creation with email ${useEmail}`);
 
-  const createUser = await User.insertOne({ name: 'Test User', email: useEmail, password: 'test123' }).catch((e) => console.log(e));
-  const countUsers = await User.count({ email: { $regex: '@example.com', $options: 'i' } }).catch((e) => console.log(e));
+  const createUser = await User.findOneOrCreate({ email: useEmail }, { name: 'Test User', email: useEmail, password: 'test123' }).catch((e: string) => console.log(e));
+  const countUsers = await User.count({ email: { $regex: '@example.com', $options: 'i' } }).catch((e: string) => console.log(e));
+  const get = await User.findOne({ _id: createUser?._id }).catch((e: string) => console.log(e));
   res.send(
-    `Hello, welcome to the Express TypeScript app! We have generated ${countUsers} users in the database! Most recent one has email ${createUser.email}!`
+    `Hello, welcome to the Express TypeScript app! We have generated ${countUsers} users in the database! Most recent one has email ${createUser?.email}!`
   );
 });
 

@@ -44,34 +44,38 @@ class Model {
     if (checkBadFields?.length !== 0) throw new Error(`You cannot use the field names createdAt or updatedAt as they are reserved for the ORM.`);
   }
 
-  private async generateIndexes() {
+  private generateIndexes = async () => {
     this.$indexOptions.forEach(async (index) => {
       const params: { [key: string]: string | boolean } = {};
       if (index.unique) params.unique = true;
       if (index.name) params.name = index.name;
-      await Connection.$mongoConnection[this.$name].createIndex(index.fields, { ...params });
+      await Connection.$mongoConnection.collection(this.$name).createIndex(index.fields, { ...params });
     });
     Message(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`);
   }
 
-  private async dispatchAction(fn: () => Promise<any>, query: MongoQuery = {}) {
-    if (this.$otherOptions.debug) {
-      const start = new Date().getTime();
-      const result = await fn();
-      const end = new Date().getTime();
-      const total = end - start;
+  private dispatchAction = async (fn: () => Promise<any>, query: MongoQuery = {}) => {
+    try {
+      if (this.$otherOptions.debug) {
+        const start = new Date().getTime();
+        const result = await fn();
+        const end = new Date().getTime();
+        const total = end - start;
 
-      if (this.$otherOptions.log !== -1 && total > this.$otherOptions.log) {
-        Connection.$mongoConnection['_mongoOrmDebug'].insertOne({
-          model: this.$name,
-          query: JSON.stringify(query, null, 2),
-          time: total,
-          date: new Date()
-        });
+        if (this.$otherOptions.log !== -1 && total > this.$otherOptions.log) {
+          Connection.$mongoConnection['_mongoOrmDebug'].insertOne({
+            model: this.$name,
+            query: JSON.stringify(query, null, 2),
+            time: total,
+            date: new Date()
+          });
+        }
+        return result;
+      } else {
+        return await fn();
       }
-      return result;
-    } else {
-      return await fn();
+    } catch (e) {
+      throw e;
     }
   }
 
@@ -124,90 +128,86 @@ class Model {
   };
 
   aggregate: MongoAggregate = async (query, options) => {
-    return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].aggregate(query, options), query);
+    return await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).aggregate(query, options), query);
   };
 
   findOne: MongoFindOne = async (query, options) => {
-    return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].findOne(query, options), query);
+    return await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).findOne(query, options), query);
   };
 
   find: MongoFind = async (query, options) => {
-    return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].find(query, options), query);
+    return await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).find(query, options), query);
   };
 
   count: MongoCount = async (query) => {
-    return await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].countDocuments(query), query);
+    return await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).countDocuments(query), query);
   };
 
   findOneAndUpdate: MongoFindOneAndUpdate = async (query, update, upsert = false, useModifier = '$set') => {
     const result = await this.dispatchAction(
       async () =>
-        await Connection.$mongoConnection[this.$name].findOneAndUpdate(
+        await Connection.$mongoConnection.collection(this.$name).findOneAndUpdate(
           query,
           { [useModifier]: this.processDocument(update, true) },
           { upsert: upsert, returnDocument: 'after' }
         ),
       query
     );
-    if (result && result.ok) return result.value;
-    else return null;
+
+    return result?.acknowledged
+      ? await this.findOne({ ...query })
+      : null;
   };
 
   updateOne: MongoUpdateOne = async (query, update, upsert = false, useModifier = '$set') => {
     const result = await this.dispatchAction(
       async () =>
-        await Connection.$mongoConnection[this.$name].updateOne(
+        await Connection.$mongoConnection.collection(this.$name).updateOne(
           query,
           { [useModifier]: this.processDocument(update, true) },
-          // @ts-expect-error - Legacy option using @rakered
-          { upsert: upsert, returnDocument: 'after' }
+          { upsert }
         ),
       query
     );
-    if (result && result.ok) return result.value;
-    else return null;
+    return !!result?.acknowledged
   };
 
   updateMany: MongoUpdateMany = async (query, document, useModifier = '$set') => {
     const result = await this.dispatchAction(
-      async () => await Connection.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document, true) }),
+      async () => await Connection.$mongoConnection.collection(this.$name).updateMany(query, { [useModifier]: this.processDocument(document, true) }),
       query
     );
-    if (result) return true;
-    else return null;
+    return !!result?.acknowledged
   };
 
   deleteMany: MongoDelete = async (query) => {
-    const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].deleteMany(query));
-    return result ? true : null;
+    const result = await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).deleteMany(query));
+    return !!result?.acknowledged
   };
 
   deleteOne: MongoDelete = async (query) => {
-    const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].deleteOne(query));
-    return result ? true : null;
+    const result = await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).deleteOne(query));
+    return !!result?.acknowledged
   };
 
   insertOne: MongoInsertOne = async (document) => {
-    const result = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].insertOne(this.processDocument(document)));
-    return result && result.insertedCount >= 1 ? result.ops[0] : null;
+    const result = await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).insertOne(this.processDocument(document)));
+    return result?.acknowledged 
+      ? { _id: result.insertedId, ...document }
+      : null;
   };
 
   insertMany: MongoInsertMany = async (documents) => {
     const result = await this.dispatchAction(
-      async () => await Connection.$mongoConnection[this.$name].insertMany(documents.map((doc) => this.processDocument(doc)))
+      async () => await Connection.$mongoConnection.collection(this.$name).insertMany(documents.map((doc) => this.processDocument(doc)))
     );
     return result && result.insertedCount >= 1 ? result.ops[0] : null;
   };
 
   findOneOrCreate: MongoFindOneOrCreate = async (query, document) => {
-    const findOne = await this.dispatchAction(async () => await Connection.$mongoConnection[this.$name].findOne(query), query);
+    const findOne = await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).findOne(query), query);
     if (findOne) return findOne;
-    else {
-      const insert = await Connection.$mongoConnection[this.$name].insertOne(this.processDocument(document));
-      // @ts-expect-error - Legacy option using @rakered
-      if (insert && insert.insertedCount >= 1) return insert.ops[0];
-      else return null;
-    }
+    else return await this.insertOne(this.processDocument(document));
   };
 }
 

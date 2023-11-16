@@ -1,4 +1,4 @@
-import { Db } from '@rakered/mongo';
+import { Db, Filter, BSON, FindOptions, AggregateOptions } from 'mongodb';
 
 declare class Model {
     private $name;
@@ -10,25 +10,25 @@ declare class Model {
     private dispatchAction;
     private processDefault;
     private processDocument;
-    aggregate(query: any, options?: any): Promise<null | any>;
-    findOne(query: any, options?: any): Promise<null | any>;
-    find(query: any, options?: any): Promise<null | any[]>;
-    count(query: any): Promise<null | any>;
-    findOneAndUpdate(query: any, update: any, upsert?: boolean, useModifier?: string): Promise<null | any[] | any>;
-    updateOne(query: any, update: any, upsert?: boolean, useModifier?: string): Promise<null | any>;
-    updateMany(query: any, document: any, useModifier?: string): Promise<null | any>;
-    deleteMany(query: any): Promise<null | any>;
-    deleteOne(query: any): Promise<null | any>;
-    insertOne(document: any): Promise<null | any>;
-    insertMany(document: any): Promise<null | any>;
-    findOneOrCreate(query: any, document?: any | null): Promise<null | any>;
+    aggregate: MongoAggregate;
+    findOne: MongoFindOne;
+    find: MongoFind;
+    count: MongoCount;
+    findOneAndUpdate: MongoFindOneAndUpdate;
+    updateOne: MongoUpdateOne;
+    updateMany: MongoUpdateMany;
+    deleteMany: MongoDelete;
+    deleteOne: MongoDelete;
+    insertOne: MongoInsertOne;
+    insertMany: MongoInsertMany;
+    findOneOrCreate: MongoFindOneOrCreate;
 }
 
 declare class Connection {
     static $mongoConnection: Db;
     static $models: Model[];
     constructor(uri?: string, modelPath?: string);
-    static sanitize(v: any): any;
+    static sanitize(v: DefaultValue): any;
 }
 
 declare const _default: {
@@ -41,28 +41,41 @@ declare const _default: {
     ObjectId: string;
 };
 
-interface MongoORMInterface { 
-    Connection: typeof Connection,
-    Model: typeof Model,
-    FieldTypes: typeof _default
+type DefaultValue = string | number | boolean | Date | object | array | null;
+type MongoFindOne = (filter: Filter<BSON.Document>, options?: FindOptions) => Promise<T | null>;
+type MongoFind = (filter: Filter<BSON.Document>, options?: FindOptions) => Promise<T[]>;
+type MongoInsertOne = (doc: T) => Promise<T>;
+type MongoInsertMany = (docs: T[]) => Promise<T[]>;
+type MongoUpdateOne = (filter: Filter<BSON.Document>, doc: T, upsert?: boolean, useModifier?: string) => Promise<T | null>;
+type MongoUpdateMany = (filter: Filter<BSON.Document>, doc: T, useModifier?: string) => Promise<boolean>;
+type MongoDelete = (filter: Filter<BSON.Document>) => Promise<boolean>;
+type MongoCount = (filter: Filter<BSON.Document>) => Promise<number>;
+type MongoAggregate = (pipeline: BSON.Document[], options?: AggregateOptions) => Promise<T[]>;
+type MongoFindOneAndUpdate = (filter: Filter<BSON.Document>, doc: T, upsert?: boolean, useModifier?: string) => Promise<T | null>;
+type MongoFindOneOrCreate = (filter: Filter<BSON.Document>, doc: T) => Promise<T>;
+
+interface MongoORMInterface {
+  Connection: typeof Connection;
+  Model: typeof Model;
+  FieldTypes: typeof _default;
 }
 
 interface FieldOptions {
-    name: string;
-    type: string;
-    default?: any;
-    required?: boolean;
+  name: string;
+  type: string;
+  default?: DefaultValue;
+  required?: boolean;
 }
 
 interface IndexOptions {
-    name: string; 
-    fields: { [key: string]: "text" | number };
-    unique?: boolean;
+  name: string;
+  fields: { [key: string]: 'text' | number };
+  unique?: boolean;
 }
 
 interface OtherOptions {
-    log: number;
-    debug?: boolean;
+  log: number;
+  debug?: boolean;
 }
 
 declare const exportData: MongoORMInterface;
