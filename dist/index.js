@@ -34898,15 +34898,11 @@ var Model = class {
             processedDocument[field.name] = Object(field.default);
           else
             processedDocument[field.name] = field.default;
-        } else if (field.required) {
+        } else if (!isUpdate && field.required)
           throw new Error(`Field ${field.name} is required but was not provided a value and does not have a default value to back up off.`);
-        }
       }
       ;
-      if (isUpdate)
-        processedDocument.updatedAt = Math.ceil((/* @__PURE__ */ new Date()).getTime() / 1e3);
-      else
-        processedDocument.createdAt = Math.ceil((/* @__PURE__ */ new Date()).getTime() / 1e3);
+      processedDocument[isUpdate ? "updatedAt" : "createdAt"] = Math.ceil((/* @__PURE__ */ new Date()).getTime() / 1e3);
       return processedDocument;
     };
     this.$name = String(name).toLowerCase();
@@ -34960,14 +34956,21 @@ var Model = class {
     return await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].countDocuments(query), query);
   }
   async findOneAndUpdate(query, update, upsert = false, useModifier = "$set") {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: this.processDocument(update) }, { upsert, returnDocument: "after" }), query);
+    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: this.processDocument(update, true) }, { upsert, returnDocument: "after" }), query);
+    if (result && result.ok)
+      return result.value;
+    else
+      return null;
+  }
+  async updateOne(query, update, upsert = false, useModifier = "$set") {
+    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].updateOne(query, { [useModifier]: this.processDocument(update, true) }, { upsert, returnDocument: "after" }), query);
     if (result && result.ok)
       return result.value;
     else
       return null;
   }
   async updateMany(query, document, useModifier = "$set") {
-    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document) }), query);
+    const result = await this.dispatchAction(await Connection_default.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document, true) }), query);
     if (result)
       return true;
     else

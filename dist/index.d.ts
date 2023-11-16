@@ -15,6 +15,7 @@ declare class Model {
     find(query: any, options?: any): Promise<null | any[]>;
     count(query: any): Promise<null | any>;
     findOneAndUpdate(query: any, update: any, upsert?: boolean, useModifier?: string): Promise<null | any[] | any>;
+    updateOne(query: any, update: any, upsert?: boolean, useModifier?: string): Promise<null | any>;
     updateMany(query: any, document: any, useModifier?: string): Promise<null | any>;
     deleteMany(query: any): Promise<null | any>;
     deleteOne(query: any): Promise<null | any>;

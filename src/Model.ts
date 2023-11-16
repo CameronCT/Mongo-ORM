@@ -88,15 +88,11 @@ class Model {
                 else if (field.type === FieldTypes.Array && !Array.isArray(field.default)) processedDocument[field.name] = Array(field.default);
                 else if (field.type === FieldTypes.Object) processedDocument[field.name] = Object(field.default);
                 else processedDocument[field.name] = field.default;
-            } else if (field.required) {
+            } else if (!isUpdate && field.required) 
                 throw new Error(`Field ${field.name} is required but was not provided a value and does not have a default value to back up off.`);
-            }
         };
 
-        if (isUpdate) 
-            processedDocument.updatedAt = Math.ceil(new Date().getTime() / 1000);
-        else
-            processedDocument.createdAt = Math.ceil(new Date().getTime() / 1000);
+        processedDocument[isUpdate ? 'updatedAt' : 'createdAt'] = Math.ceil(new Date().getTime() / 1000);
 
         return processedDocument;
     }
@@ -118,13 +114,19 @@ class Model {
     }
 
     async findOneAndUpdate(query: any, update: any, upsert: boolean = false, useModifier: string = '$set'): Promise<null | any[] | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: this.processDocument(update) }, { upsert: upsert, returnDocument: 'after' }), query)
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].findOneAndUpdate(query, { [useModifier]: this.processDocument(update, true) }, { upsert: upsert, returnDocument: 'after' }), query)
         if (result && result.ok) return result.value
         else return null
     }
 
+    async updateOne(query: any, update: any, upsert: boolean = false, useModifier: string = '$set'): Promise<null | any> {
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].updateOne(query, { [useModifier]: this.processDocument(update, true) }, { upsert: upsert, returnDocument: 'after' }), query)
+        if (result && result.ok) return result.value
+        else return null
+    };
+
     async updateMany(query: any, document: any, useModifier: string = '$set'): Promise<null | any> {
-        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document) }), query)
+        const result = await this.dispatchAction(await Connection.$mongoConnection[this.$name].updateMany(query, { [useModifier]: this.processDocument(document, true) }), query)
         if (result) return true
         else return null
     }
