@@ -13,6 +13,7 @@
     "publish": "npm publish --access public",
     "prettier": "prettier --config .prettierrc './src/**/*.{ts,tsx}' './test/**/*.{ts,tsx}' --write",
     "lint": "eslint . --ext .ts",
+    "docs": "jsdoc -c jsdoc.conf.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -40,9 +41,11 @@
     "@types/node": "^20.9.0",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@typescript-eslint/parser": "^6.11.0",
+    "better-docs": "^2.7.2",
     "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.1",
+    "jsdoc": "^4.0.2",
     "mongodb": "^6.2.0",
     "prettier": "^3.1.0",
     "tsup": "^7.2.0",

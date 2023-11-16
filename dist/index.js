@@ -27650,6 +27650,14 @@ var Message_default = Message;
 var import_fs = __toESM(require("fs"));
 var import_path = __toESM(require("path"));
 var _Connection = class _Connection {
+  /**
+   * Creates an instance of the Connection class and establishes a connection to the MongoDB database.
+   *
+   * @constructor
+   * @param {string} [uri] - The URI of the MongoDB database. Defaults to 'mongodb://127.0.0.1:27017/newapp'.
+   * @param {string} [modelPath] - The path to the folder containing model files. Defaults to './src/models'.
+   * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
+   */
   constructor(uri, modelPath) {
     const useModelPath = modelPath || import_path.default.join(process.cwd(), "./src/models");
     const client = new import_mongodb.MongoClient(!uri ? "mongodb://127.0.0.1:27017/newapp" : uri);
@@ -27673,6 +27681,19 @@ var _Connection = class _Connection {
         Message_default("Unable to connect to MongoDB!", true);
     });
   }
+  /**
+   * Static method to sanitize an object by removing properties with keys starting with '$'.
+   *
+   * @static
+   * @method
+   * @memberof Connection
+   * @param {DefaultValue} v - The value to sanitize.
+   * @returns {DefaultValue} The sanitized value.
+   *
+   * @example
+   * // Usage:
+   * const sanitizedValue = Connection.sanitize({ $key: 'value', nested: { $property: 'nestedValue' } });
+   */
   static sanitize(v) {
     if (v instanceof Object) {
       for (const key in v) {
@@ -27686,6 +27707,12 @@ var _Connection = class _Connection {
     return v;
   }
 };
+/**
+ * An array containing instances of the Model class associated with the connection.
+ *
+ * @static
+ * @member {Model[]}
+ */
 _Connection.$models = [];
 var Connection = _Connection;
 var Connection_default = Connection;

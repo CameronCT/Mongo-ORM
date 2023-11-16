@@ -286,13 +286,65 @@ declare class Model {
     findOneOrCreate: MongoFindOneOrCreate;
 }
 
+/**
+ * Represents a MongoDB connection and manages models associated with the connection.
+ *
+ * @class
+ * @name Connection
+ */
+
 declare class Connection {
+    /**
+     * The MongoDB connection instance.
+     *
+     * @static
+     * @member {Db}
+     */
     static $mongoConnection: Db;
+    /**
+     * An array containing instances of the Model class associated with the connection.
+     *
+     * @static
+     * @member {Model[]}
+     */
     static $models: Model[];
+    /**
+     * Creates an instance of the Connection class and establishes a connection to the MongoDB database.
+     *
+     * @constructor
+     * @param {string} [uri] - The URI of the MongoDB database. Defaults to 'mongodb://127.0.0.1:27017/newapp'.
+     * @param {string} [modelPath] - The path to the folder containing model files. Defaults to './src/models'.
+     * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
+     */
     constructor(uri?: string, modelPath?: string);
+    /**
+     * Static method to sanitize an object by removing properties with keys starting with '$'.
+     *
+     * @static
+     * @method
+     * @memberof Connection
+     * @param {DefaultValue} v - The value to sanitize.
+     * @returns {DefaultValue} The sanitized value.
+     *
+     * @example
+     * // Usage:
+     * const sanitizedValue = Connection.sanitize({ $key: 'value', nested: { $property: 'nestedValue' } });
+     */
     static sanitize(v: DefaultValue): any;
 }
 
+/**
+ * Defines mapping between field types and their corresponding MongoDB data types.
+ *
+ * @typedef {Object} FieldTypes
+ * @property {string} String - The MongoDB data type for a string field.
+ * @property {string} Number - The MongoDB data type for a number field.
+ * @property {string} Boolean - The MongoDB data type for a boolean field.
+ * @property {string} Date - The MongoDB data type for a date field.
+ * @property {string} Array - The MongoDB data type for an array field.
+ * @property {string} Object - The MongoDB data type for an object field.
+ * @property {string} ObjectId - The MongoDB data type for an ObjectId field.
+ */
 declare const _default: {
     String: string;
     Number: string;
@@ -340,6 +392,11 @@ interface OtherOptions {
   debug?: boolean;
 }
 
+/**
+ * A module exporting MongoDB-related classes and types for an ORM implementation.
+ *
+ * @type {MongoORMInterface}
+ */
 declare const exportData: MongoORMInterface;
 
 export { exportData as default };
