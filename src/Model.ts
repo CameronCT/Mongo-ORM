@@ -12,8 +12,8 @@ class Model {
         log: -1
     }
 
-    constructor(name: string, fieldOptions: FieldOptions[], indexOptions: IndexOptions[], otherOptions?: OtherOptions) {
-        this.$name = String(name).toLowerCase();
+    constructor(collectionName: string, fieldOptions: FieldOptions[] = [], indexOptions: IndexOptions[] = [], otherOptions?: OtherOptions) {
+        this.$name = String(collectionName);
         this.$fieldOptions = fieldOptions;
         this.$indexOptions = indexOptions;
         this.$otherOptions = { 

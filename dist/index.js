@@ -34784,8 +34784,8 @@ var Message_default = Message;
 var import_fs = __toESM(require("fs"));
 var import_path = __toESM(require("path"));
 var _Connection = class _Connection {
-  constructor(uri, modelFolder = "") {
-    const useModelPath = modelFolder || import_path.default.join(process.cwd(), "./src/models");
+  constructor(uri, modelPath) {
+    const useModelPath = modelPath || import_path.default.join(process.cwd(), "./src/models");
     _Connection.$mongoConnection = (0, import_mongo.create)(!uri ? "mongodb://127.0.0.1:27017/newapp" : uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
@@ -34794,8 +34794,8 @@ var _Connection = class _Connection {
       try {
         const getModelsFromFolder = import_fs.default.readdirSync(useModelPath);
         getModelsFromFolder.forEach((model) => {
-          const modelPath = import_path.default.join(useModelPath, model);
-          const ModelClass = require(modelPath).default;
+          const modelPath2 = import_path.default.join(useModelPath, model);
+          const ModelClass = require(modelPath2).default;
           ModelClass.generateIndexes();
           _Connection.$models.push(ModelClass);
         });
@@ -34837,7 +34837,7 @@ var FieldTypes_default = {
 
 // src/Model.ts
 var Model = class {
-  constructor(name, fieldOptions, indexOptions, otherOptions) {
+  constructor(collectionName, fieldOptions = [], indexOptions = [], otherOptions) {
     this.$name = "";
     this.$fieldOptions = [];
     this.$indexOptions = [];
@@ -34905,7 +34905,7 @@ var Model = class {
       processedDocument[isUpdate ? "updatedAt" : "createdAt"] = Math.ceil((/* @__PURE__ */ new Date()).getTime() / 1e3);
       return processedDocument;
     };
-    this.$name = String(name).toLowerCase();
+    this.$name = String(collectionName);
     this.$fieldOptions = fieldOptions;
     this.$indexOptions = indexOptions;
     this.$otherOptions = {

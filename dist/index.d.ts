@@ -5,7 +5,7 @@ declare class Model {
     private $fieldOptions;
     private $indexOptions;
     private $otherOptions;
-    constructor(name: string, fieldOptions: FieldOptions[], indexOptions: IndexOptions[], otherOptions?: OtherOptions);
+    constructor(collectionName: string, fieldOptions?: FieldOptions[], indexOptions?: IndexOptions[], otherOptions?: OtherOptions);
     private generateIndexes;
     private dispatchAction;
     private processDefault;
@@ -27,7 +27,7 @@ declare class Model {
 declare class Connection {
     static $mongoConnection: Db;
     static $models: Model[];
-    constructor(uri?: string, modelFolder?: string);
+    constructor(uri?: string, modelPath?: string);
     static sanitize(v: any): any;
 }
 
