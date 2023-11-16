@@ -37,6 +37,7 @@
     "registry": "https://registry.npmjs.org"
   },
   "devDependencies": {
+    "mongodb": "^6.2.0",
     "@rakered/mongo": "^1.6.0",
     "@types/node": "^20.9.0",
     "@typescript-eslint/eslint-plugin": "^6.11.0",
@@ -47,9 +48,6 @@
     "prettier": "^3.1.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
-  },
-  "peerDependencies": {
-    "mongodb": "^6.2.0"
   },
   "engines": {
     "node": ">=16.20.1"
