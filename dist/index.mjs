@@ -34908,6 +34908,9 @@ var Model = class {
       log: otherOptions?.log || -1
     };
     this.$fieldOptions.forEach((field) => this.processDefault(field));
+    const checkBadFields = this.$fieldOptions.filter((field) => ["createdAt", "updatedAt"].includes(field.name));
+    if (checkBadFields?.length !== 0)
+      throw new Error(`You cannot use the field names createdAt or updatedAt as they are reserved for the ORM.`);
   }
   async generateIndexes() {
     this.$indexOptions.forEach(async (index) => {
