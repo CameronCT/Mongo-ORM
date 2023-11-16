@@ -4,9 +4,9 @@ import FieldTypes from './FieldTypes';
 import { MongoORMInterface } from './types';
 
 const exportData: MongoORMInterface = {
-    Connection,
-    Model,
-    FieldTypes
-}
+  Connection,
+  Model,
+  FieldTypes
+};
 
 export default exportData;

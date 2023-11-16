@@ -11,6 +11,8 @@
   "scripts": {
     "build": "tsup",
     "publish": "npm publish --access public",
+    "prettier": "prettier --config .prettierrc './src/**/*.{ts,tsx}' './test/**/*.{ts,tsx}' --write",
+    "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -35,8 +37,14 @@
     "registry": "https://registry.npmjs.org"
   },
   "devDependencies": {
-    "@types/node": "^20.9.0",
     "@rakered/mongo": "^1.6.0",
+    "@types/node": "^20.9.0",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "eslint": "^8.53.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.1.0",
     "tsup": "^7.2.0",
     "typescript": "^5.2.2"
   }
