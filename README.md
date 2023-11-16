@@ -1,6 +1,6 @@
 # MongoORM
 
-An insanely basic implementation of some form of Object Relational Mapping for MongoDB. This was not really made to be used as a widely available package, it does not contain severely insane levels of logging. However it is basic enough that it is faster and more simplified than Mongoose.
+An insanely basic implementation of some form of Object Relational Mapping for MongoDB. This was not really made to be used as a widely available package, it does not contain severely insane levels of logging. 
 
 ## Getting Started
 
@@ -52,3 +52,10 @@ await User.insertOne({ name: "test", email: "@example.com" });
 await User.updateOne({ email: "@example.com" }, { name: "test", email: "new@example.com" }, "$set");
 await User.removeOne({ email: "@example.com" });
 ```
+
+## Tests
+
+Current list of tests I want to do in the future.
+- Mongoose
+- Sequelize
+- Native
