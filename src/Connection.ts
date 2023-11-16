@@ -1,4 +1,4 @@
-import { Db, MongoClient } from "mongodb";
+import { Db, MongoClient } from 'mongodb';
 import Model from './Model';
 import Message from './Message';
 import fs from 'fs';
@@ -14,7 +14,7 @@ class Connection {
     const client = new MongoClient(!uri ? 'mongodb://127.0.0.1:27017/newapp' : uri);
     client.connect().then(() => {
       Connection.$mongoConnection = client.db();
-      
+
       if (Connection.$mongoConnection) {
         // Get all Models in Models Folder and Initialize Class
         try {
