@@ -1,5 +1,5 @@
 import express from 'express';
-import MongoORM from 'mongoorm';
+import MongoORM from 'mongo-orm';
 import User from './models/User';
 
 const app = express();

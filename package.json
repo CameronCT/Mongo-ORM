@@ -1,14 +1,42 @@
 {
   "name": "mongo-orm",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "tsup",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@rakered/mongo": "^1.6.0"
+  "keywords": [
+    "mongo",
+    "mongodb",
+    "orm",
+    "object relational mapping"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CameronCT/Mongo-ORM"
+  },
+  "bugs": {
+    "url": "https://github.com/CameronCT/Mongo-ORM/issues"
+  },
+  "author": {
+    "name": "CameronCT",
+    "email": "contact@cameronct.com"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@rakered/mongo": "^1.6.0",
+    "tsup": "^7.2.0",
+    "typescript": "^5.2.2"
   }
 }

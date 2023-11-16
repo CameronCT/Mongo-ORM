@@ -1,11 +1,10 @@
-import FieldTypes from "mongoorm/FieldTypes";
-import Model from "mongoorm/Model";
+import MongoORM from 'mongo-orm';
 
-const User = new Model("users", [
-    { name: "name", type: FieldTypes.String, required: true },
-    { name: "email", type: FieldTypes.String, required: true },
-    { name: "password", type: FieldTypes.String, required: true },
-    { name: "type", type: FieldTypes.String, default: "basic" },
+const User = new MongoORM.Model("users", [
+    { name: "name", type: MongoORM.FieldTypes.String, required: true },
+    { name: "email", type: MongoORM.FieldTypes.String, required: true },
+    { name: "password", type: MongoORM.FieldTypes.String, required: true },
+    { name: "type", type: MongoORM.FieldTypes.String, default: "basic" },
 ], [ 
     { name: "uniqueEmail", fields: { email: "text" } },
 ], { 

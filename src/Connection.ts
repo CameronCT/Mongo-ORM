@@ -8,7 +8,7 @@ class Connection {
     static $mongoConnection: Db
     static $models: Model[] = [];
 
-    constructor(uri: string | null, modelFolder: string = '') {
+    constructor(uri?: string, modelFolder: string = '') {
         const useModelPath = modelFolder || path.join(process.cwd(), './src/models');
         Connection.$mongoConnection = MongoCreate(!uri ? 'mongodb://127.0.0.1:27017/newapp' : uri, {
             useNewUrlParser: true,
