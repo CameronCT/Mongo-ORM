@@ -1,4 +1,4 @@
-import { BSON, Filter, FindOptions, AggregateOptions } from 'mongodb';
+import { BSON, Filter, FindOptions, AggregateOptions, AggregationCursor } from 'mongodb';
 import Connection from './Connection';
 import Model from './Model';
 import FieldTypes from './FieldTypes';
@@ -19,7 +19,7 @@ export type MongoFindOneAndUpdate = (filter: Filter<BSON.Document>, doc: T, upse
 export type MongoFindOneOrCreate = (filter: Filter<BSON.Document>, doc: T) => Promise<T>;
 
 export type MongoFindOneWithCollection = (collection: string, filter: Filter<BSON.Document>, options?: FindOptions) => Promise<T | null>;
-export type MongoFindWithCollection = (collection: string, filter: Filter<BSON.Document>, options?: FindOptions<BSON.Document>) => Promise<any>; // TODO: Fix
+export type MongoFindWithCollection = (collection: string, filter: Filter<BSON.Document>, options?: FindOptions<BSON.Document>) => Promise<T>;
 export type MongoInsertOneWithCollection = (collection: string, doc: T) => Promise<T>;
 export type MongoInsertManyWithCollection = (collection: string, docs: T[]) => Promise<boolean>;
 export type MongoUpdateOneWithCollection = (
@@ -32,7 +32,7 @@ export type MongoUpdateOneWithCollection = (
 export type MongoUpdateManyWithCollection = (collection: string, filter: Filter<BSON.Document>, doc: T, useModifier?: string) => Promise<boolean>;
 export type MongoDeleteWithCollection = (collection: string, filter: Filter<BSON.Document>) => Promise<boolean>;
 export type MongoCountWithCollection = (collection: string, filter: Filter<BSON.Document>) => Promise<number>;
-export type MongoAggregateWithCollection = (collection: string, pipeline: BSON.Document[], options?: AggregateOptions) => Promise<any>; // TODO: FIX
+export type MongoAggregateWithCollection = (collection: string, pipeline: BSON.Document[], options?: AggregateOptions) => Promise<AggregationCursor<Document>>;
 export type MongoFindOneAndUpdateWithCollection = (
   collection: string,
   filter: Filter<BSON.Document>,
