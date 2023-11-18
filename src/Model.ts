@@ -308,12 +308,10 @@ class Model {
    * const updatedDocument = await this.findOneAndUpdate({ username: 'john_doe' }, { $set: { status: 'inactive' } });
    */
   findOneAndUpdate: MongoFindOneAndUpdate = async (query, update, upsert = false, useModifier = '$set') => {
-    const result = await this.dispatchAction(
+    return await this.dispatchAction(
       async () => await this.$queryBuilder.findOneAndUpdate(this.$name, query, this.processDocument(update, true), upsert, useModifier),
       query
     );
-
-    return result?.acknowledged ? await this.findOne({ ...query }) : null;
   };
 
   /**
@@ -334,11 +332,10 @@ class Model {
    * const isUpdated = await this.updateOne({ username: 'john_doe' }, { status: 'inactive' }, '$set');
    */
   updateOne: MongoUpdateOne = async (query, update, upsert = false, useModifier = '$set') => {
-    const result = await this.dispatchAction(
+    return await this.dispatchAction(
       async () => await this.$queryBuilder.updateOne(this.$name, query, this.processDocument(update, true), upsert, useModifier),
       query
     );
-    return !!result?.acknowledged;
   };
 
   /**
@@ -358,11 +355,10 @@ class Model {
    * const areUpdated = await this.updateMany({ status: 'active' }, { status: 'inactive' }, '$set');
    */
   updateMany: MongoUpdateMany = async (query, document, useModifier = '$set') => {
-    const result = await this.dispatchAction(
+    return await this.dispatchAction(
       async () => await this.$queryBuilder.updateMany(this.$name, query, { [useModifier]: this.processDocument(document, true) }),
       query
     );
-    return !!result?.acknowledged;
   };
 
   /**
@@ -379,10 +375,7 @@ class Model {
    * // Usage within the class:
    * const areDeleted = await this.deleteMany({ status: 'inactive' });
    */
-  deleteMany: MongoDelete = async (query) => {
-    const result = await this.dispatchAction(async () => await this.$queryBuilder.deleteMany(this.$name, query));
-    return !!result?.acknowledged;
-  };
+  deleteMany: MongoDelete = async (query) => await this.dispatchAction(async () => await this.$queryBuilder.deleteMany(this.$name, query));
 
   /**
    * Deletes a single document in the MongoDB collection associated with the current instance.
@@ -399,10 +392,8 @@ class Model {
    * const isDeleted = await this.deleteOne({ status: 'inactive' });
    */
   deleteOne: MongoDelete = async (query) => {
-    const result = await this.dispatchAction(async () => await this.$queryBuilder.deleteOne(this.$name, query));
-    return !!result?.acknowledged;
+    return await this.dispatchAction(async () => await this.$queryBuilder.deleteOne(this.$name, query));
   };
-
   /**
    * Inserts a single document into the MongoDB collection associated with the current instance.
    *
@@ -418,8 +409,7 @@ class Model {
    * const insertedDocument = await this.insertOne({ username: 'john_doe', status: 'active' });
    */
   insertOne: MongoInsertOne = async (document) => {
-    const result = await this.dispatchAction(async () => await this.$queryBuilder.insertOne(this.$name, this.processDocument(document)));
-    return !!result?.acknowledged;
+    return await this.dispatchAction(async () => await this.$queryBuilder.insertOne(this.$name, this.processDocument(document)));
   };
 
   /**
@@ -437,14 +427,13 @@ class Model {
    * const insertedDocuments = await this.insertMany([{ username: 'john_doe', status: 'active' }, { username: 'jane_doe', status: 'inactive' }]);
    */
   insertMany: MongoInsertMany = async (documents) => {
-    const result = await this.dispatchAction(
+    return await this.dispatchAction(
       async () =>
         await this.$queryBuilder.insertMany(
           this.$name,
           documents.map((doc) => this.processDocument(doc))
         )
     );
-    return !!result?.acknowledged;
   };
 
   /**
@@ -466,9 +455,7 @@ class Model {
    * const result = await this.findOneOrCreate(query, newDocument);
    */
   findOneOrCreate: MongoFindOneOrCreate = async (query, document) => {
-    const findOne = await this.dispatchAction(async () => await this.$queryBuilder.findOne(this.$name, query), query);
-    if (findOne) return findOne;
-    else return await this.insertOne(this.processDocument(document));
+    return await this.dispatchAction(async () => await this.$queryBuilder.findOneOrCreate(this.$name, query, document), query);
   };
 }
 

@@ -21,7 +21,7 @@ export type MongoFindOneOrCreate = (filter: Filter<BSON.Document>, doc: T) => Pr
 export type MongoFindOneWithCollection = (collection: string, filter: Filter<BSON.Document>, options?: FindOptions) => Promise<T | null>;
 export type MongoFindWithCollection = (collection: string, filter: Filter<BSON.Document>, options?: FindOptions<BSON.Document>) => Promise<any>; // TODO: Fix
 export type MongoInsertOneWithCollection = (collection: string, doc: T) => Promise<T>;
-export type MongoInsertManyWithCollection = (collection: string, docs: T[]) => Promise<T>;
+export type MongoInsertManyWithCollection = (collection: string, docs: T[]) => Promise<boolean>;
 export type MongoUpdateOneWithCollection = (
   collection: string,
   filter: Filter<BSON.Document>,

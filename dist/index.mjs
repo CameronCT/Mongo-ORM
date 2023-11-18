@@ -27712,6 +27712,279 @@ _Connection.$models = [];
 var Connection = _Connection;
 var Connection_default = Connection;
 
+// src/QueryBuilder.ts
+var QueryBuilder = class {
+  constructor() {
+    /**
+     * Creates an index for the MongoDB collection associated with the current instance.
+     *
+     * @private
+     * @method
+     * @async
+     * @throws {Error} If an error occurs during the index creation process.
+     * @returns {Promise<void>} A Promise that resolves when all indexes are successfully generated.
+     *
+     * @example
+     * // Usage within the class:
+     * await this.generateIndexes();
+     */
+    this.createIndex = async (collection, fields, options) => {
+      return await Connection_default.$mongoConnection.collection(collection).createIndex(fields, options);
+    };
+    /**
+     * Performs an aggregation operation on the MongoDB collection associated with the current instance.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object[]} query - The aggregation pipeline stages.
+     * @param {Object} options - Additional options for the aggregation.
+     * @throws {Error} If an error occurs during the aggregation process.
+     * @returns {Promise<any>} A Promise that resolves with the result of the aggregation.
+     *
+     * @example
+     * // Usage within the class:
+     * const aggregationResult = await this.aggregate([{ $match: { status: 'active' } }]);
+     */
+    this.aggregate = async (collection, query, options) => {
+      return await Connection_default.$mongoConnection.collection(collection).aggregate(query, options);
+    };
+    /**
+     * Performs a find operation on the MongoDB collection associated with the current instance,
+     * returning the first document that matches the specified query.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} query - The query criteria.
+     * @param {Object} options - Additional options for the find operation.
+     * @throws {Error} If an error occurs during the find operation.
+     * @returns {Promise<any | null>} A Promise that resolves with the found document or null if not found.
+     *
+     * @example
+     * // Usage within the class:
+     * const foundDocument = await this.findOne({ username: 'john_doe' });
+     */
+    this.findOne = async (collection, query, options) => {
+      return await Connection_default.$mongoConnection.collection(collection).findOne(query, options);
+    };
+    /**
+     * Performs a find operation on the MongoDB collection associated with the current instance,
+     * returning a cursor to the documents that match the specified query.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} query - The query criteria.
+     * @param {Object} options - Additional options for the find operation.
+     * @throws {Error} If an error occurs during the find operation.
+     * @returns {Promise<any>} A Promise that resolves with the cursor to the found documents.
+     *
+     * @example
+     * // Usage within the class:
+     * const cursor = await this.find({ status: 'active' });
+     */
+    this.find = async (collection, query, options) => {
+      const results = await Connection_default.$mongoConnection.collection(collection).find(query, options);
+      return results.map((item) => item);
+    };
+    /**
+     * Counts the number of documents in the MongoDB collection associated with the current instance
+     * that match the specified query.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} query - The query criteria.
+     * @throws {Error} If an error occurs during the count operation.
+     * @returns {Promise<number>} A Promise that resolves with the count of matching documents.
+     *
+     * @example
+     * // Usage within the class:
+     * const documentCount = await this.count({ status: 'active' });
+     */
+    this.count = async (collection, query) => {
+      return await Connection_default.$mongoConnection.collection(collection).countDocuments(query);
+    };
+    /**
+     * Performs a find-and-modify operation on the MongoDB collection associated with the current instance,
+     * returning the modified document.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} query - The query criteria for finding the document to update.
+     * @param {Object} update - The update operation to apply to the found document.
+     * @param {boolean} [upsert=false] - If true, creates a new document when no document matches the query criteria.
+     * @param {string} [useModifier='$set'] - The modifier to use for the update operation.
+     * @throws {Error} If an error occurs during the update operation.
+     * @returns {Promise<any | null>} A Promise that resolves with the modified document or null if not found.
+     *
+     * @example
+     * // Usage within the class:
+     * const updatedDocument = await this.findOneAndUpdate({ username: 'john_doe' }, { $set: { status: 'inactive' } });
+     */
+    this.findOneAndUpdate = async (collection, query, update, upsert = false, useModifier = "$set") => {
+      const result = await Connection_default.$mongoConnection.collection(collection).findOneAndUpdate(query, { [useModifier]: update }, { upsert, returnDocument: "after" });
+      return result?.acknowledged ? await this.findOne(collection, { ...query }) : null;
+    };
+    /**
+     * Updates a single document in the MongoDB collection associated with the current instance.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} query - The query criteria for finding the document to update.
+     * @param {Object} update - The update operation to apply to the found document.
+     * @param {boolean} [upsert=false] - If true, creates a new document when no document matches the query criteria.
+     * @param {string} [useModifier='$set'] - The modifier to use for the update operation.
+     * @throws {Error} If an error occurs during the update operation.
+     * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating the success of the update operation.
+     *
+     * @example
+     * // Usage within the class:
+     * const isUpdated = await this.updateOne({ username: 'john_doe' }, { status: 'inactive' }, '$set');
+     */
+    this.updateOne = async (collection, query, update, upsert = false, useModifier = "$set") => {
+      const result = await Connection_default.$mongoConnection.collection(collection).updateOne(query, { [useModifier]: update }, { upsert });
+      return !!result?.acknowledged;
+    };
+    /**
+     * Updates multiple documents in the MongoDB collection associated with the current instance.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} query - The query criteria for finding the documents to update.
+     * @param {Object} document - The update operation to apply to the found documents.
+     * @param {string} [useModifier='$set'] - The modifier to use for the update operation.
+     * @throws {Error} If an error occurs during the update operation.
+     * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating the success of the update operation.
+     *
+     * @example
+     * // Usage within the class:
+     * const areUpdated = await this.updateMany({ status: 'active' }, { status: 'inactive' }, '$set');
+     */
+    this.updateMany = async (collection, query, document, useModifier = "$set") => {
+      const result = await Connection_default.$mongoConnection.collection(collection).updateMany(query, { [useModifier]: document });
+      return !!result?.acknowledged;
+    };
+    /**
+     * Deletes multiple documents in the MongoDB collection associated with the current instance.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} query - The query criteria for finding the documents to delete.
+     * @throws {Error} If an error occurs during the delete operation.
+     * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating the success of the delete operation.
+     *
+     * @example
+     * // Usage within the class:
+     * const areDeleted = await this.deleteMany({ status: 'inactive' });
+     */
+    this.deleteMany = async (collection, query) => {
+      const result = await Connection_default.$mongoConnection.collection(collection).deleteMany(query);
+      return !!result?.acknowledged;
+    };
+    /**
+     * Deletes a single document in the MongoDB collection associated with the current instance.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} query - The query criteria for finding the document to delete.
+     * @throws {Error} If an error occurs during the delete operation.
+     * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating the success of the delete operation.
+     *
+     * @example
+     * // Usage within the class:
+     * const isDeleted = await this.deleteOne({ status: 'inactive' });
+     */
+    this.deleteOne = async (collection, query) => {
+      const result = await Connection_default.$mongoConnection.collection(collection).deleteOne(query);
+      return !!result?.acknowledged;
+    };
+    /**
+     * Inserts a single document into the MongoDB collection associated with the current instance.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object} document - The document to be inserted.
+     * @throws {Error} If an error occurs during the insert operation.
+     * @returns {Promise<any | null>} A Promise that resolves with the inserted document or null if insertion fails.
+     *
+     * @example
+     * // Usage within the class:
+     * const insertedDocument = await this.insertOne({ username: 'john_doe', status: 'active' });
+     */
+    this.insertOne = async (collection, document) => {
+      const result = await Connection_default.$mongoConnection.collection(collection).insertOne(document);
+      return {
+        _id: result?.insertedId,
+        ...document
+      };
+    };
+    /**
+     * Inserts multiple documents into the MongoDB collection associated with the current instance.
+     *
+     * @async
+     * @method
+     * @memberof MongoODM.QueryBuilder
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {Object[]} documents - An array of documents to be inserted.
+     * @throws {Error} If an error occurs during the insert operation.
+     * @returns {Promise<any | null>} A Promise that resolves with the inserted documents or null if insertion fails.
+     *
+     * @example
+     * // Usage within the class:
+     * const insertedDocuments = await this.insertMany([{ username: 'john_doe', status: 'active' }, { username: 'jane_doe', status: 'inactive' }]);
+     */
+    this.insertMany = async (collection, documents) => {
+      const result = await Connection_default.$mongoConnection.collection(collection).insertMany(documents.map((doc) => doc));
+      return !!result?.acknowledged;
+    };
+    /**
+     * Finds a document in the MongoDB collection associated with the current instance based on the provided query.
+     * If no document is found, a new document is inserted into the collection using the provided document.
+     *
+     * @async
+     * @method
+     * @memberof Model
+     * @param {String} collection - The name of the collection to count documents from.
+     * @param {MongoQuery} query - The query criteria to find an existing document.
+     * @param {MongoDocument} document - The document to insert if no existing document is found.
+     * @throws {Error} If an error occurs during the find or insert operation.
+     * @returns {Promise<MongoDocument | null>} A Promise that resolves with the found or inserted document, or null if an error occurs.
+     *
+     * @example
+     * // Usage within the class:
+     * const query = { username: 'john_doe' };
+     * const newDocument = { username: 'john_doe', email: 'john@example.com' };
+     * const result = await this.findOneOrCreate(query, newDocument);
+     */
+    this.findOneOrCreate = async (collection, query, document) => {
+      const findOne = await Connection_default.$mongoConnection.collection(collection).findOne(query);
+      if (findOne)
+        return findOne;
+      else
+        return await this.insertOne(collection, document);
+    };
+  }
+};
+var QueryBuilder_default = QueryBuilder;
+
 // src/FieldTypes.ts
 var FieldTypes_default = {
   String: "string",
@@ -27783,7 +28056,7 @@ var Model = class {
           params.unique = true;
         if (index.name)
           params.name = index.name;
-        await Connection_default.$mongoConnection.collection(this.$name).createIndex(index.fields, { ...params });
+        await this.$queryBuilder.createIndex(this.$name, index.fields, params);
       });
       Message_default(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`);
     };
@@ -27809,7 +28082,7 @@ var Model = class {
         const end = (/* @__PURE__ */ new Date()).getTime();
         const total = end - start;
         if (this.$otherOptions.log !== -1 && total > this.$otherOptions.log) {
-          Connection_default.$mongoConnection["_mongoOrmDebug"].insertOne({
+          this.$queryBuilder.insertOne("_mongoOrmDebug", {
             model: this.$name,
             query: JSON.stringify(query, null, 2),
             time: total,
@@ -27913,7 +28186,7 @@ var Model = class {
      * const aggregationResult = await this.aggregate([{ $match: { status: 'active' } }]);
      */
     this.aggregate = async (query, options) => {
-      return await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).aggregate(query, options), query);
+      return await this.dispatchAction(async () => await this.$queryBuilder.aggregate(this.$name, query, options), query);
     };
     /**
      * Performs a find operation on the MongoDB collection associated with the current instance,
@@ -27932,7 +28205,7 @@ var Model = class {
      * const foundDocument = await this.findOne({ username: 'john_doe' });
      */
     this.findOne = async (query, options) => {
-      return await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).findOne(query, options), query);
+      return await this.dispatchAction(async () => await this.$queryBuilder.findOne(this.$name, query, options), query);
     };
     /**
      * Performs a find operation on the MongoDB collection associated with the current instance,
@@ -27951,7 +28224,7 @@ var Model = class {
      * const cursor = await this.find({ status: 'active' });
      */
     this.find = async (query, options) => {
-      return await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).find(query, options), query);
+      return await this.dispatchAction(async () => await this.$queryBuilder.find(this.$name, query, options), query);
     };
     /**
      * Counts the number of documents in the MongoDB collection associated with the current instance
@@ -27969,7 +28242,7 @@ var Model = class {
      * const documentCount = await this.count({ status: 'active' });
      */
     this.count = async (query) => {
-      return await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).countDocuments(query), query);
+      return await this.dispatchAction(async () => await this.$queryBuilder.count(this.$name, query), query);
     };
     /**
      * Performs a find-and-modify operation on the MongoDB collection associated with the current instance,
@@ -27990,11 +28263,10 @@ var Model = class {
      * const updatedDocument = await this.findOneAndUpdate({ username: 'john_doe' }, { $set: { status: 'inactive' } });
      */
     this.findOneAndUpdate = async (query, update, upsert = false, useModifier = "$set") => {
-      const result = await this.dispatchAction(
-        async () => await Connection_default.$mongoConnection.collection(this.$name).findOneAndUpdate(query, { [useModifier]: this.processDocument(update, true) }, { upsert, returnDocument: "after" }),
+      return await this.dispatchAction(
+        async () => await this.$queryBuilder.findOneAndUpdate(this.$name, query, this.processDocument(update, true), upsert, useModifier),
         query
       );
-      return result?.acknowledged ? await this.findOne({ ...query }) : null;
     };
     /**
      * Updates a single document in the MongoDB collection associated with the current instance.
@@ -28014,11 +28286,10 @@ var Model = class {
      * const isUpdated = await this.updateOne({ username: 'john_doe' }, { status: 'inactive' }, '$set');
      */
     this.updateOne = async (query, update, upsert = false, useModifier = "$set") => {
-      const result = await this.dispatchAction(
-        async () => await Connection_default.$mongoConnection.collection(this.$name).updateOne(query, { [useModifier]: this.processDocument(update, true) }, { upsert }),
+      return await this.dispatchAction(
+        async () => await this.$queryBuilder.updateOne(this.$name, query, this.processDocument(update, true), upsert, useModifier),
         query
       );
-      return !!result?.acknowledged;
     };
     /**
      * Updates multiple documents in the MongoDB collection associated with the current instance.
@@ -28037,11 +28308,10 @@ var Model = class {
      * const areUpdated = await this.updateMany({ status: 'active' }, { status: 'inactive' }, '$set');
      */
     this.updateMany = async (query, document, useModifier = "$set") => {
-      const result = await this.dispatchAction(
-        async () => await Connection_default.$mongoConnection.collection(this.$name).updateMany(query, { [useModifier]: this.processDocument(document, true) }),
+      return await this.dispatchAction(
+        async () => await this.$queryBuilder.updateMany(this.$name, query, { [useModifier]: this.processDocument(document, true) }),
         query
       );
-      return !!result?.acknowledged;
     };
     /**
      * Deletes multiple documents in the MongoDB collection associated with the current instance.
@@ -28057,10 +28327,7 @@ var Model = class {
      * // Usage within the class:
      * const areDeleted = await this.deleteMany({ status: 'inactive' });
      */
-    this.deleteMany = async (query) => {
-      const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).deleteMany(query));
-      return !!result?.acknowledged;
-    };
+    this.deleteMany = async (query) => await this.dispatchAction(async () => await this.$queryBuilder.deleteMany(this.$name, query));
     /**
      * Deletes a single document in the MongoDB collection associated with the current instance.
      *
@@ -28076,8 +28343,7 @@ var Model = class {
      * const isDeleted = await this.deleteOne({ status: 'inactive' });
      */
     this.deleteOne = async (query) => {
-      const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).deleteOne(query));
-      return !!result?.acknowledged;
+      return await this.dispatchAction(async () => await this.$queryBuilder.deleteOne(this.$name, query));
     };
     /**
      * Inserts a single document into the MongoDB collection associated with the current instance.
@@ -28094,8 +28360,7 @@ var Model = class {
      * const insertedDocument = await this.insertOne({ username: 'john_doe', status: 'active' });
      */
     this.insertOne = async (document) => {
-      const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).insertOne(this.processDocument(document)));
-      return !!result?.acknowledged;
+      return await this.dispatchAction(async () => await this.$queryBuilder.insertOne(this.$name, this.processDocument(document)));
     };
     /**
      * Inserts multiple documents into the MongoDB collection associated with the current instance.
@@ -28112,10 +28377,12 @@ var Model = class {
      * const insertedDocuments = await this.insertMany([{ username: 'john_doe', status: 'active' }, { username: 'jane_doe', status: 'inactive' }]);
      */
     this.insertMany = async (documents) => {
-      const result = await this.dispatchAction(
-        async () => await Connection_default.$mongoConnection.collection(this.$name).insertMany(documents.map((doc) => this.processDocument(doc)))
+      return await this.dispatchAction(
+        async () => await this.$queryBuilder.insertMany(
+          this.$name,
+          documents.map((doc) => this.processDocument(doc))
+        )
       );
-      return !!result?.acknowledged;
     };
     /**
      * Finds a document in the MongoDB collection associated with the current instance based on the provided query.
@@ -28123,7 +28390,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourClassName
+     * @memberof Model
      * @param {MongoQuery} query - The query criteria to find an existing document.
      * @param {MongoDocument} document - The document to insert if no existing document is found.
      * @throws {Error} If an error occurs during the find or insert operation.
@@ -28136,12 +28403,9 @@ var Model = class {
      * const result = await this.findOneOrCreate(query, newDocument);
      */
     this.findOneOrCreate = async (query, document) => {
-      const findOne = await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).findOne(query), query);
-      if (findOne)
-        return findOne;
-      else
-        return await this.insertOne(this.processDocument(document));
+      return await this.dispatchAction(async () => await this.$queryBuilder.findOneOrCreate(this.$name, query, document), query);
     };
+    this.$queryBuilder = new QueryBuilder_default();
     this.$name = String(collectionName);
     this.$fieldOptions = fieldOptions;
     this.$indexOptions = indexOptions;
@@ -28160,6 +28424,7 @@ var Model_default = Model;
 // src/index.ts
 var exportData = {
   Connection: Connection_default,
+  QueryBuilder: QueryBuilder_default,
   Model: Model_default,
   FieldTypes: FieldTypes_default
 };

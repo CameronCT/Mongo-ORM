@@ -248,7 +248,10 @@ class QueryBuilder {
    */
   insertOne: MongoInsertOneWithCollection = async (collection, document) => {
     const result = await Connection.$mongoConnection.collection(collection).insertOne(document);
-    return !!result?.acknowledged;
+    return {
+      _id: result?.insertedId,
+      ...document
+    };
   };
 
   /**

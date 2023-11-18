@@ -2,6 +2,10 @@ import { Db, Filter, BSON, FindOptions, AggregateOptions } from 'mongodb';
 
 declare class Model {
     /**
+     * The `QueryBuilder` instance
+     */
+    private $queryBuilder;
+    /**
      * The name of the MongoDB collection associated with the model.
      * @private
      * @type {string}
@@ -49,7 +53,7 @@ declare class Model {
      * // Usage within the class:
      * await this.generateIndexes();
      */
-    private generateIndexes;
+    generateIndexes: () => Promise<void>;
     /**
      * Dispatches an asynchronous action with optional debugging and logging.
      *
@@ -271,7 +275,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourClassName
+     * @memberof Model
      * @param {MongoQuery} query - The query criteria to find an existing document.
      * @param {MongoDocument} document - The document to insert if no existing document is found.
      * @throws {Error} If an error occurs during the find or insert operation.
@@ -370,6 +374,7 @@ type MongoFindOneOrCreate = (filter: Filter<BSON.Document>, doc: T) => Promise<T
 
 interface MongoODMInterface {
   Connection: typeof Connection;
+  QueryBuilder: typeof QueryBuilder;
   Model: typeof Model;
   FieldTypes: typeof _default;
 }
