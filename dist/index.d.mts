@@ -90,7 +90,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object[]} query - The aggregation pipeline stages.
      * @param {Object} options - Additional options for the aggregation.
      * @throws {Error} If an error occurs during the aggregation process.
@@ -107,7 +107,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria.
      * @param {Object} options - Additional options for the find operation.
      * @throws {Error} If an error occurs during the find operation.
@@ -124,7 +124,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria.
      * @param {Object} options - Additional options for the find operation.
      * @throws {Error} If an error occurs during the find operation.
@@ -141,7 +141,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria.
      * @throws {Error} If an error occurs during the count operation.
      * @returns {Promise<number>} A Promise that resolves with the count of matching documents.
@@ -157,7 +157,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the document to update.
      * @param {Object} update - The update operation to apply to the found document.
      * @param {boolean} [upsert=false] - If true, creates a new document when no document matches the query criteria.
@@ -175,7 +175,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the document to update.
      * @param {Object} update - The update operation to apply to the found document.
      * @param {boolean} [upsert=false] - If true, creates a new document when no document matches the query criteria.
@@ -193,7 +193,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the documents to update.
      * @param {Object} document - The update operation to apply to the found documents.
      * @param {string} [useModifier='$set'] - The modifier to use for the update operation.
@@ -210,7 +210,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the documents to delete.
      * @throws {Error} If an error occurs during the delete operation.
      * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating the success of the delete operation.
@@ -225,7 +225,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the document to delete.
      * @throws {Error} If an error occurs during the delete operation.
      * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating the success of the delete operation.
@@ -240,7 +240,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} document - The document to be inserted.
      * @throws {Error} If an error occurs during the insert operation.
      * @returns {Promise<any | null>} A Promise that resolves with the inserted document or null if insertion fails.
@@ -255,7 +255,7 @@ declare class Model {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object[]} documents - An array of documents to be inserted.
      * @throws {Error} If an error occurs during the insert operation.
      * @returns {Promise<any | null>} A Promise that resolves with the inserted documents or null if insertion fails.
@@ -359,7 +359,7 @@ type DefaultValue = string | number | boolean | Date | object | array | null;
 type MongoFindOne = (filter: Filter<BSON.Document>, options?: FindOptions) => Promise<T | null>;
 type MongoFind = (filter: Filter<BSON.Document>, options?: FindOptions) => Promise<T[]>;
 type MongoInsertOne = (doc: T) => Promise<T>;
-type MongoInsertMany = (docs: T[]) => Promise<T[]>;
+type MongoInsertMany = (docs: T[]) => Promise<T>;
 type MongoUpdateOne = (filter: Filter<BSON.Document>, doc: T, upsert?: boolean, useModifier?: string) => Promise<T | null>;
 type MongoUpdateMany = (filter: Filter<BSON.Document>, doc: T, useModifier?: string) => Promise<boolean>;
 type MongoDelete = (filter: Filter<BSON.Document>) => Promise<boolean>;
@@ -368,7 +368,7 @@ type MongoAggregate = (pipeline: BSON.Document[], options?: AggregateOptions) =>
 type MongoFindOneAndUpdate = (filter: Filter<BSON.Document>, doc: T, upsert?: boolean, useModifier?: string) => Promise<T | null>;
 type MongoFindOneOrCreate = (filter: Filter<BSON.Document>, doc: T) => Promise<T>;
 
-interface MongoORMInterface {
+interface MongoODMInterface {
   Connection: typeof Connection;
   Model: typeof Model;
   FieldTypes: typeof _default;
@@ -395,8 +395,8 @@ interface OtherOptions {
 /**
  * A module exporting MongoDB-related classes and types for an ORM implementation.
  *
- * @type {MongoORMInterface}
+ * @type {MongoODMInterface}
  */
-declare const exportData: MongoORMInterface;
+declare const exportData: MongoODMInterface;
 
 export { exportData as default };

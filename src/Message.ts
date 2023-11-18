@@ -18,7 +18,7 @@ const Message = (message: string, error: boolean = false) => {
   const resetColor: string = '\x1b[0m';
   const boldFont: string = '\x1b[1m';
 
-  console.log(`${boldFont}${error ? redColor : blueColor}>> MongoORM: ${message}${resetColor}`);
+  console.log(`${boldFont}${error ? redColor : blueColor}>> MongoODM: ${message}${resetColor}`);
 };
 
 export default Message;

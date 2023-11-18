@@ -1,6 +1,6 @@
 {
-  "name": "@cameronct/mongo-orm",
-  "version": "0.1.5-rc1",
+  "name": "@cameronct/mongo-odm",
+  "version": "0.1.6",
   "description": "",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -20,14 +20,16 @@
     "mongo",
     "mongodb",
     "orm",
+    "odm",
+    "object document mapping",
     "object relational mapping"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/CameronCT/Mongo-ORM"
+    "url": "https://github.com/CameronCT/Mongo-ODM"
   },
   "bugs": {
-    "url": "https://github.com/CameronCT/Mongo-ORM/issues"
+    "url": "https://github.com/CameronCT/Mongo-ODM/issues"
   },
   "author": {
     "name": "CameronCT",

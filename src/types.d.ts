@@ -7,7 +7,7 @@ export type DefaultValue = string | number | boolean | Date | object | array | n
 export type MongoFindOne = (filter: Filter<BSON.Document>, options?: FindOptions) => Promise<T | null>;
 export type MongoFind = (filter: Filter<BSON.Document>, options?: FindOptions) => Promise<T[]>;
 export type MongoInsertOne = (doc: T) => Promise<T>;
-export type MongoInsertMany = (docs: T[]) => Promise<T[]>;
+export type MongoInsertMany = (docs: T[]) => Promise<T>;
 export type MongoUpdateOne = (filter: Filter<BSON.Document>, doc: T, upsert?: boolean, useModifier?: string) => Promise<T | null>;
 export type MongoUpdateMany = (filter: Filter<BSON.Document>, doc: T, useModifier?: string) => Promise<boolean>;
 export type MongoDelete = (filter: Filter<BSON.Document>) => Promise<boolean>;
@@ -18,7 +18,7 @@ export type MongoFindOneOrCreate = (filter: Filter<BSON.Document>, doc: T) => Pr
 export type MongoQuery = Filter<BSON.Document>;
 export type MongoDocument = BSON.Document;
 
-export interface MongoORMInterface {
+export interface MongoODMInterface {
   Connection: typeof Connection;
   Model: typeof Model;
   FieldTypes: typeof FieldTypes;

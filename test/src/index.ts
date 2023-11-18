@@ -1,11 +1,11 @@
 import express from 'express';
-import MongoORM from '@cameronct/mongo-orm';
+import MongoODM from '@cameronct/mongo-odm';
 import User from './models/User';
 
 const app = express();
 const port = 5000;
 
-new MongoORM.Connection();
+new MongoODM.Connection();
 
 app.get('/test-db', async (req, res) => {
   const getTimestamp = Math.round(new Date().getTime() / 1000);

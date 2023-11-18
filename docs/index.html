@@ -43,32 +43,35 @@
 
 
     <section>
-        <article><h1>MongoORM</h1>
-<p>An insanely basic implementation of some form of Object Relational Mapping for MongoDB. This was not really made to be used as a widely available package, it does not contain severely insane levels of logging.</p>
+        <article><h1>@cameronct/mongo-odm</h1>
+<p><img src="https://img.shields.io/badge/NPM-%23CB3837.svg?style=for-the-badge&amp;logo=npm&amp;logoColor=white" alt="NPM">
+<img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&amp;logo=node.js&amp;logoColor=white" alt="NodeJS">
+<img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&amp;logo=mongodb&amp;logoColor=white" alt="MongoDB"></p>
+<p>An insanely basic implementation of some form of Object Document Mapping (not ORM) for MongoDB. This was not really made to be used as a widely available package, it does not contain severely insane levels of logging.</p>
 <h2>Getting Started</h2>
 <p>To get started you must install the package via your dependency manager (you can use yarn as well)</p>
-<p><code>npm install @cameronct/mongo-orm</code></p>
+<p><code>npm install @cameronct/mongo-odm</code></p>
 <h3>Initiating the Connection</h3>
-<pre class="prettyprint source lang-js"><code>import MongoORM from &quot;mongo-orm&quot;;
+<pre class="prettyprint source lang-js"><code>import MongoODM from &quot;@cameronct/mongo-odm&quot;;
 
 // Basic
-new MongoORM.Connection();
+new MongoODM.Connection();
 
 // With Connection URI
-new MongoORM.Connection(&quot;mongodb://localhost:27017/my-app&quot;);
+new MongoODM.Connection(&quot;mongodb://localhost:27017/my-app&quot;);
 
 // With Custom Models Folder
-new MongoORM.Connection(&quot;mongodb://localhost:27017/my-app&quot;, path.join(__dirname, &quot;path/to/models&quot;));
+new MongoODM.Connection(&quot;mongodb://localhost:27017/my-app&quot;, path.join(__dirname, &quot;path/to/models&quot;));
 </code></pre>
 <h3>Creating a Model</h3>
 <p>Here is an example Model that can be found in <code>/models/User.js</code></p>
-<pre class="prettyprint source lang-js"><code>import MongoORM from &quot;mongo-orm&quot;;
+<pre class="prettyprint source lang-js"><code>import MongoODM from &quot;@cameronct/mongo-odm&quot;;
 
-const User = new MongoORM.Model(&quot;users&quot;, [
-    { name: &quot;name&quot;, type: MongoORM.FieldTypes.String, required: true },
-    { name: &quot;email&quot;, type: MongoORM.FieldTypes.String, required: true },
-    { name: &quot;password&quot;, type: MongoORM.FieldTypes.String, required: true },
-    { name: &quot;type&quot;, type: MongoORM.FieldTypes.String, default: &quot;basic&quot; },
+const User = new MongoODM.Model(&quot;users&quot;, [
+    { name: &quot;name&quot;, type: MongoODM.FieldTypes.String, required: true },
+    { name: &quot;email&quot;, type: MongoODM.FieldTypes.String, required: true },
+    { name: &quot;password&quot;, type: MongoODM.FieldTypes.String, required: true },
+    { name: &quot;type&quot;, type: MongoODM.FieldTypes.String, default: &quot;basic&quot; },
 ], [ 
     { name: &quot;uniqueEmail&quot;, fields: { email: &quot;text&quot; } },
 ])
@@ -77,6 +80,7 @@ const User = new MongoORM.Model(&quot;users&quot;, [
 <p>Some examples, most native functionality from MongoDB will work here.</p>
 <pre class="prettyprint source lang-js"><code>import User from &quot;./models/User&quot;;
 
+await User.count({ email: &quot;@example.com&quot; });
 await User.findOne({ email: &quot;@example.com&quot; });
 await User.findOneOrCreate({ email: &quot;@example.com&quot; }, { name: &quot;test&quot;, email: &quot;@example.com&quot; });
 await User.findOneAndUpdate({ email: &quot;@example.com&quot; }, { name: &quot;test&quot;, email: &quot;new@example.com&quot; }, &quot;$set&quot;);
@@ -84,6 +88,10 @@ await User.insertOne({ name: &quot;test&quot;, email: &quot;@example.com&quot; }
 await User.updateOne({ email: &quot;@example.com&quot; }, { name: &quot;test&quot;, email: &quot;new@example.com&quot; }, &quot;$set&quot;);
 await User.removeOne({ email: &quot;@example.com&quot; });
 </code></pre>
+<h3>Documents</h3>
+<p>When a document is inserted into the collection, we specifically add <code>createdAt</code> field for new documents using <code>insertOne</code>, <code>insertMany</code> and <code>findOneOrCreate</code>.
+We also add an <code>updatedAt</code> field for new documents using <code>updateOne</code>, <code>updateMany</code> and <code>findOneAndUpdate</code></p>
+<p>These parameters <strong>cannot</strong> be overridden inside of the Model. I may change this functionality later, but for now it is what it is.</p>
 <h2>Tests</h2>
 <p>Current list of tests I want to do in the future.</p>
 <ul>
@@ -101,13 +109,13 @@ await User.removeOne({ email: &quot;@example.com&quot; });
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="MongoORM.html">MongoORM</a></li></ul><h3>Classes</h3><ul><li><a href="Connection.html">Connection</a></li><li><a href="Model.html">Model</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Message">Message</a></li><li><a href="global.html#exportData">exportData</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="MongoODM.html">MongoODM</a></li></ul><h3>Classes</h3><ul><li><a href="Connection.html">Connection</a></li><li><a href="Model.html">Model</a></li></ul><h3>Global</h3><ul><li><a href="global.html#Message">Message</a></li><li><a href="global.html#exportData">exportData</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Thu Nov 16 2023 00:07:11 GMT-0700 (Mountain Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sat Nov 18 2023 13:56:43 GMT-0700 (Mountain Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>

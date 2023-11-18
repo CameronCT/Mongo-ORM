@@ -27642,7 +27642,7 @@ var Message = (message, error = false) => {
   const redColor = "\x1B[31m";
   const resetColor = "\x1B[0m";
   const boldFont = "\x1B[1m";
-  console.log(`${boldFont}${error ? redColor : blueColor}>> MongoORM: ${message}${resetColor}`);
+  console.log(`${boldFont}${error ? redColor : blueColor}>> MongoODM: ${message}${resetColor}`);
 };
 var Message_default = Message;
 
@@ -27907,7 +27907,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object[]} query - The aggregation pipeline stages.
      * @param {Object} options - Additional options for the aggregation.
      * @throws {Error} If an error occurs during the aggregation process.
@@ -27926,7 +27926,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria.
      * @param {Object} options - Additional options for the find operation.
      * @throws {Error} If an error occurs during the find operation.
@@ -27945,7 +27945,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria.
      * @param {Object} options - Additional options for the find operation.
      * @throws {Error} If an error occurs during the find operation.
@@ -27964,7 +27964,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria.
      * @throws {Error} If an error occurs during the count operation.
      * @returns {Promise<number>} A Promise that resolves with the count of matching documents.
@@ -27982,7 +27982,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the document to update.
      * @param {Object} update - The update operation to apply to the found document.
      * @param {boolean} [upsert=false] - If true, creates a new document when no document matches the query criteria.
@@ -28006,7 +28006,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the document to update.
      * @param {Object} update - The update operation to apply to the found document.
      * @param {boolean} [upsert=false] - If true, creates a new document when no document matches the query criteria.
@@ -28030,7 +28030,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the documents to update.
      * @param {Object} document - The update operation to apply to the found documents.
      * @param {string} [useModifier='$set'] - The modifier to use for the update operation.
@@ -28053,7 +28053,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the documents to delete.
      * @throws {Error} If an error occurs during the delete operation.
      * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating the success of the delete operation.
@@ -28071,7 +28071,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} query - The query criteria for finding the document to delete.
      * @throws {Error} If an error occurs during the delete operation.
      * @returns {Promise<boolean>} A Promise that resolves with a boolean indicating the success of the delete operation.
@@ -28089,7 +28089,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object} document - The document to be inserted.
      * @throws {Error} If an error occurs during the insert operation.
      * @returns {Promise<any | null>} A Promise that resolves with the inserted document or null if insertion fails.
@@ -28100,14 +28100,14 @@ var Model = class {
      */
     this.insertOne = async (document) => {
       const result = await this.dispatchAction(async () => await Connection_default.$mongoConnection.collection(this.$name).insertOne(this.processDocument(document)));
-      return result?.acknowledged ? { _id: result.insertedId, ...document } : null;
+      return !!result?.acknowledged;
     };
     /**
      * Inserts multiple documents into the MongoDB collection associated with the current instance.
      *
      * @async
      * @method
-     * @memberof YourNamespace.Model
+     * @memberof MongoODM.Model
      * @param {Object[]} documents - An array of documents to be inserted.
      * @throws {Error} If an error occurs during the insert operation.
      * @returns {Promise<any | null>} A Promise that resolves with the inserted documents or null if insertion fails.
@@ -28120,7 +28120,7 @@ var Model = class {
       const result = await this.dispatchAction(
         async () => await Connection_default.$mongoConnection.collection(this.$name).insertMany(documents.map((doc) => this.processDocument(doc)))
       );
-      return result && result.insertedCount >= 1 ? result.ops[0] : null;
+      return !!result?.acknowledged;
     };
     /**
      * Finds a document in the MongoDB collection associated with the current instance based on the provided query.

@@ -1,25 +1,25 @@
 /**
  * A module exporting MongoDB-related classes and types for an ORM implementation.
  *
- * @typedef {Object} MongoORMInterface
+ * @typedef {Object} MongoODMInterface
  * @property {Connection} Connection - The class representing a MongoDB connection.
  * @property {Model} Model - The class representing a MongoDB model with CRUD operations.
  * @property {Object} FieldTypes - An object defining mapping between field types and MongoDB data types.
  *
  * @namespace
- * @name MongoORM
+ * @name MongoODM
  */
 import Connection from './Connection';
 import Model from './Model';
 import FieldTypes from './FieldTypes';
-import { MongoORMInterface } from './types';
+import { MongoODMInterface } from './types';
 
 /**
  * A module exporting MongoDB-related classes and types for an ORM implementation.
  *
- * @type {MongoORMInterface}
+ * @type {MongoODMInterface}
  */
-const exportData: MongoORMInterface = {
+const exportData: MongoODMInterface = {
   Connection,
   Model,
   FieldTypes

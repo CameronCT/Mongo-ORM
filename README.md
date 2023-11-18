@@ -1,4 +1,4 @@
-# @cameronct/mongo-orm
+# @cameronct/mongo-odm
 ![NPM](https://img.shields.io/badge/NPM-%23CB3837.svg?style=for-the-badge&logo=npm&logoColor=white)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
@@ -9,34 +9,34 @@ An insanely basic implementation of some form of Object Document Mapping (not OR
 
 To get started you must install the package via your dependency manager (you can use yarn as well)
 
-`npm install @cameronct/mongo-orm`
+`npm install @cameronct/mongo-odm`
 
 ### Initiating the Connection
 
 ```js
-import MongoORM from "@cameronct/mongo-orm";
+import MongoODM from "@cameronct/mongo-odm";
 
 // Basic
-new MongoORM.Connection();
+new MongoODM.Connection();
 
 // With Connection URI
-new MongoORM.Connection("mongodb://localhost:27017/my-app");
+new MongoODM.Connection("mongodb://localhost:27017/my-app");
 
 // With Custom Models Folder
-new MongoORM.Connection("mongodb://localhost:27017/my-app", path.join(__dirname, "path/to/models"));
+new MongoODM.Connection("mongodb://localhost:27017/my-app", path.join(__dirname, "path/to/models"));
 ```
 
 ### Creating a Model
 
 Here is an example Model that can be found in `/models/User.js`
 ```js
-import MongoORM from "@cameronct/mongo-orm";
+import MongoODM from "@cameronct/mongo-odm";
 
-const User = new MongoORM.Model("users", [
-    { name: "name", type: MongoORM.FieldTypes.String, required: true },
-    { name: "email", type: MongoORM.FieldTypes.String, required: true },
-    { name: "password", type: MongoORM.FieldTypes.String, required: true },
-    { name: "type", type: MongoORM.FieldTypes.String, default: "basic" },
+const User = new MongoODM.Model("users", [
+    { name: "name", type: MongoODM.FieldTypes.String, required: true },
+    { name: "email", type: MongoODM.FieldTypes.String, required: true },
+    { name: "password", type: MongoODM.FieldTypes.String, required: true },
+    { name: "type", type: MongoODM.FieldTypes.String, default: "basic" },
 ], [ 
     { name: "uniqueEmail", fields: { email: "text" } },
 ])
