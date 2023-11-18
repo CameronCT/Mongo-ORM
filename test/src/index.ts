@@ -16,9 +16,11 @@ app.get('/test-db', async (req, res) => {
   const createUser = await User.findOneOrCreate({ email: useEmail }, { name: 'Test User', email: useEmail, password: 'test123' }).catch((e: string) =>
     console.log(e)
   );
+  const queryBuilder = new MongoODM.QueryBuilder();
   const countUsers = await User.count({ email: { $regex: '@example.com', $options: 'i' } }).catch((e: string) => console.log(e));
+  const countUsersLegacy = await queryBuilder.count('users', { email: { $regex: '@example.com', $options: 'i' } }).catch((e: string) => console.log(e));
   res.send(
-    `Hello, welcome to the Express TypeScript app! We have generated ${countUsers} users in the database! Most recent one has email ${createUser?.email}!`
+    `Hello, welcome to the Express TypeScript app! We have generated ${countUsers} (or ${countUsersLegacy} legacy count) users in the database! Most recent one has email ${createUser?.email}!`
   );
 });
 

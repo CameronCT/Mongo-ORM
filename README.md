@@ -57,6 +57,26 @@ await User.updateOne({ email: "@example.com" }, { name: "test", email: "new@exam
 await User.removeOne({ email: "@example.com" });
 ```
 
+### Using QueryBuilder
+
+This is **not** a recommend way of doing my library, as you're essentially doing the same thing as using the native MongoDB driver. However, you can use the QueryBuilder class directly to interact with the Database which will skip the entire Model/Schematic aspect of the library.
+
+The only difference is you will specify the collection name manually, like in the example it's doing the queries in the `users` collection.
+
+```js
+import MongoODM from "@cameronct/mongo-odm";
+
+const queryBuilder = new MongoODM.QueryBuilder();
+
+await queryBuilder.count("users", { email: "@example.com" });
+await queryBuilder.findOne("users", { email: "@example.com" });
+await queryBuilder.findOneOrCreate("users", { email: "@example.com" }, { name: "test", email: "@example.com" });
+await queryBuilder.findOneAndUpdate("users", { email: "@example.com" }, { name: "test", email: "new@example.com" }, "$set");
+await queryBuilder.insertOne("users", { name: "test", email: "@example.com" });
+await queryBuilder.updateOne("users", { email: "@example.com" }, { name: "test", email: "new@example.com" }, "$set");
+await queryBuilder.removeOne("users", { email: "@example.com" });
+```
+
 ### Documents
 When a document is inserted into the collection, we specifically add `createdAt` field for new documents using `insertOne`, `insertMany` and `findOneOrCreate`. 
 We also add an `updatedAt` field for new documents using `updateOne`, `updateMany` and `findOneAndUpdate`
