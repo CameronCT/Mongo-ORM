@@ -279,7 +279,7 @@ class QueryBuilder {
    *
    * @async
    * @method
-   * @memberof Model
+   * @memberof MongoODM.QueryBuilder
    * @param {String} collection - The name of the collection to count documents from.
    * @param {MongoQuery} query - The query criteria to find an existing document.
    * @param {MongoDocument} document - The document to insert if no existing document is found.

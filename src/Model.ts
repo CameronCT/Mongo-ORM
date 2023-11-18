@@ -442,7 +442,7 @@ class Model {
    *
    * @async
    * @method
-   * @memberof Model
+   * @memberof MongoODM.Model
    * @param {MongoQuery} query - The query criteria to find an existing document.
    * @param {MongoDocument} document - The document to insert if no existing document is found.
    * @throws {Error} If an error occurs during the find or insert operation.
