@@ -6,10 +6,9 @@ const uri = 'mongodb://127.0.0.1:27017/performance_test';
 new MongoODM.Connection(uri);
 
 function generateTestData() {
-    const documents = Array.from({ length: 500 }, (_, index) => ({
+    const documents = Array.from({ length: 50000 }, (_, index) => ({
         name: `Student ${index}`,
         age: Math.floor(Math.random() * 100),
-        courses: ["Math", "English", "Science"],
     }));
 
     return documents;
@@ -49,8 +48,7 @@ async function runMongooseTest() {
   const MongooseSchema = new mongoose.Schema({
     name: String,
     age: Number,
-    city: String,
-    isStudent: Boolean,
+    courses: Array,
   });
 
   // Create a Mongoose model
@@ -80,8 +78,7 @@ async function runMeTest() {
   const MongoModel = new MongoODM.Model('mongoodm', [
     { name: 'name', type: MongoODM.FieldTypes.String },
     { name: 'age', type: MongoODM.FieldTypes.String },
-    { name: 'city', type: MongoODM.FieldTypes.String },
-    { name: 'isStudent', type: MongoODM.FieldTypes.Boolean },
+    { name: 'courses', type: MongoODM.FieldTypes.Array },
   ])
 
   // Start measuring time
@@ -103,6 +100,7 @@ async function main() {
   await runMongoDBNativeTest();
   await runMongooseTest();
   await runMeTest();
+  process.exit(0);
 }
 
 main();

@@ -65,7 +65,21 @@ These parameters **cannot** be overridden inside of the Model. I may change this
 
 ## Tests
 
-Current list of tests I want to do in the future.
-- Mongoose
-- Sequelize
-- Native
+Inserting 50,000 documents using `insertMany`. Code for generating documents is below.
+```js
+function generateTestData() {
+    const documents = Array.from({ length: 50000 }, (_, index) => ({
+        name: `Student ${index}`,
+        age: Math.floor(Math.random() * 100),
+    }));
+
+    return documents;
+}
+```
+
+Results:
+```
+MongoDB Native Test completed in 297 milliseconds
+Mongoose Test completed in 1883 milliseconds
+MongoODM Test completed in 313 milliseconds
+```

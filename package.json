@@ -26,7 +26,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/CameronCT/Mongo-ODM"
+    "url": "git+https://github.com/CameronCT/Mongo-ODM.git"
   },
   "bugs": {
     "url": "https://github.com/CameronCT/Mongo-ODM/issues"
