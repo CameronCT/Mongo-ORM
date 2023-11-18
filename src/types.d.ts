@@ -1,5 +1,6 @@
 import { BSON, Filter, FindOptions, AggregateOptions, AggregationCursor } from 'mongodb';
 import Connection from './Connection';
+import QueryBuilder from './QueryBuilder';
 import Model from './Model';
 import FieldTypes from './FieldTypes';
 
@@ -48,7 +49,7 @@ export interface MongoODMInterface {
   Connection: typeof Connection;
   QueryBuilder: typeof QueryBuilder;
   Model: typeof Model;
-  FieldTypes: typeof FieldTypes;
+  FieldTypes: FieldTypes;
 }
 
 export interface FieldOptions {
