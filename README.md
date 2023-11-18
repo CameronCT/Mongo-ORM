@@ -14,7 +14,7 @@ To get started you must install the package via your dependency manager (you can
 ### Initiating the Connection
 
 ```js
-import MongoORM from "mongo-orm";
+import MongoORM from "@cameronct/mongo-orm";
 
 // Basic
 new MongoORM.Connection();
@@ -30,7 +30,7 @@ new MongoORM.Connection("mongodb://localhost:27017/my-app", path.join(__dirname,
 
 Here is an example Model that can be found in `/models/User.js`
 ```js
-import MongoORM from "mongo-orm";
+import MongoORM from "@cameronct/mongo-orm";
 
 const User = new MongoORM.Model("users", [
     { name: "name", type: MongoORM.FieldTypes.String, required: true },
@@ -48,6 +48,7 @@ Some examples, most native functionality from MongoDB will work here.
 ```js
 import User from "./models/User";
 
+await User.count({ email: "@example.com" });
 await User.findOne({ email: "@example.com" });
 await User.findOneOrCreate({ email: "@example.com" }, { name: "test", email: "@example.com" });
 await User.findOneAndUpdate({ email: "@example.com" }, { name: "test", email: "new@example.com" }, "$set");
@@ -55,6 +56,12 @@ await User.insertOne({ name: "test", email: "@example.com" });
 await User.updateOne({ email: "@example.com" }, { name: "test", email: "new@example.com" }, "$set");
 await User.removeOne({ email: "@example.com" });
 ```
+
+### Documents
+When a document is inserted into the collection, we specifically add `createdAt` field for new documents using `insertOne`, `insertMany` and `findOneOrCreate`. 
+We also add an `updatedAt` field for new documents using `updateOne`, `updateMany` and `findOneAndUpdate`
+
+These parameters **cannot** be overridden inside of the Model. I may change this functionality later, but for now it is what it is.
 
 ## Tests
 
