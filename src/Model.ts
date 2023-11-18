@@ -3,8 +3,8 @@
  *
  * @class
  */
-import Connection from './Connection';
 import Message from './Message';
+import QueryBuilder from './QueryBuilder';
 import {
   FieldOptions,
   IndexOptions,
@@ -20,12 +20,17 @@ import {
   MongoInsertMany,
   MongoDelete,
   MongoFindOneOrCreate,
-  MongoQuery,
-  MongoDocument
+  MongoDocument,
+  MongoDispatchAction
 } from './types';
 import FieldTypes from './FieldTypes';
 
 class Model {
+  /**
+   * The `QueryBuilder` instance
+   */
+  private $queryBuilder: QueryBuilder;
+
   /**
    * The name of the MongoDB collection associated with the model.
    * @private
@@ -68,6 +73,7 @@ class Model {
    * @throws {Error} If the provided field options include reserved names like 'createdAt' or 'updatedAt'.
    */
   constructor(collectionName: string, fieldOptions: FieldOptions[] = [], indexOptions: IndexOptions[] = [], otherOptions?: OtherOptions) {
+    this.$queryBuilder = new QueryBuilder();
     this.$name = String(collectionName);
     this.$fieldOptions = fieldOptions;
     this.$indexOptions = indexOptions;
@@ -95,12 +101,12 @@ class Model {
    * // Usage within the class:
    * await this.generateIndexes();
    */
-  private generateIndexes = async () => {
+  generateIndexes = async () => {
     this.$indexOptions.forEach(async (index) => {
       const params: { [key: string]: string | boolean } = {};
       if (index.unique) params.unique = true;
       if (index.name) params.name = index.name;
-      await Connection.$mongoConnection.collection(this.$name).createIndex(index.fields, { ...params });
+      await this.$queryBuilder.createIndex(this.$name, index.fields, params);
     });
     Message(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`);
   };
@@ -120,7 +126,7 @@ class Model {
    * // Usage within the class:
    * const result = await this.dispatchAction(async () => await someAsyncFunction(), { key: 'value' });
    */
-  private dispatchAction = async (fn: () => Promise<any>, query: MongoQuery = {}) => {
+  private dispatchAction: MongoDispatchAction = async (fn, query = {}) => {
     if (this.$otherOptions.debug) {
       const start = new Date().getTime();
       const result = await fn();
@@ -128,7 +134,7 @@ class Model {
       const total = end - start;
 
       if (this.$otherOptions.log !== -1 && total > this.$otherOptions.log) {
-        Connection.$mongoConnection['_mongoOrmDebug'].insertOne({
+        this.$queryBuilder.insertOne('_mongoOrmDebug', {
           model: this.$name,
           query: JSON.stringify(query, null, 2),
           time: total,
@@ -221,7 +227,7 @@ class Model {
    * const aggregationResult = await this.aggregate([{ $match: { status: 'active' } }]);
    */
   aggregate: MongoAggregate = async (query, options) => {
-    return await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).aggregate(query, options), query);
+    return await this.dispatchAction(async () => await this.$queryBuilder.aggregate(this.$name, query, options), query);
   };
 
   /**
@@ -241,7 +247,7 @@ class Model {
    * const foundDocument = await this.findOne({ username: 'john_doe' });
    */
   findOne: MongoFindOne = async (query, options) => {
-    return await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).findOne(query, options), query);
+    return await this.dispatchAction(async () => await this.$queryBuilder.findOne(this.$name, query, options), query);
   };
 
   /**
@@ -261,7 +267,7 @@ class Model {
    * const cursor = await this.find({ status: 'active' });
    */
   find: MongoFind = async (query, options) => {
-    return await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).find(query, options), query);
+    return await this.dispatchAction(async () => await this.$queryBuilder.find(this.$name, query, options), query);
   };
 
   /**
@@ -280,7 +286,7 @@ class Model {
    * const documentCount = await this.count({ status: 'active' });
    */
   count: MongoCount = async (query) => {
-    return await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).countDocuments(query), query);
+    return await this.dispatchAction(async () => await this.$queryBuilder.count(this.$name, query), query);
   };
 
   /**
@@ -303,10 +309,7 @@ class Model {
    */
   findOneAndUpdate: MongoFindOneAndUpdate = async (query, update, upsert = false, useModifier = '$set') => {
     const result = await this.dispatchAction(
-      async () =>
-        await Connection.$mongoConnection
-          .collection(this.$name)
-          .findOneAndUpdate(query, { [useModifier]: this.processDocument(update, true) }, { upsert: upsert, returnDocument: 'after' }),
+      async () => await this.$queryBuilder.findOneAndUpdate(this.$name, query, this.processDocument(update, true), upsert, useModifier),
       query
     );
 
@@ -332,7 +335,7 @@ class Model {
    */
   updateOne: MongoUpdateOne = async (query, update, upsert = false, useModifier = '$set') => {
     const result = await this.dispatchAction(
-      async () => await Connection.$mongoConnection.collection(this.$name).updateOne(query, { [useModifier]: this.processDocument(update, true) }, { upsert }),
+      async () => await this.$queryBuilder.updateOne(this.$name, query, this.processDocument(update, true), upsert, useModifier),
       query
     );
     return !!result?.acknowledged;
@@ -356,7 +359,7 @@ class Model {
    */
   updateMany: MongoUpdateMany = async (query, document, useModifier = '$set') => {
     const result = await this.dispatchAction(
-      async () => await Connection.$mongoConnection.collection(this.$name).updateMany(query, { [useModifier]: this.processDocument(document, true) }),
+      async () => await this.$queryBuilder.updateMany(this.$name, query, { [useModifier]: this.processDocument(document, true) }),
       query
     );
     return !!result?.acknowledged;
@@ -377,7 +380,7 @@ class Model {
    * const areDeleted = await this.deleteMany({ status: 'inactive' });
    */
   deleteMany: MongoDelete = async (query) => {
-    const result = await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).deleteMany(query));
+    const result = await this.dispatchAction(async () => await this.$queryBuilder.deleteMany(this.$name, query));
     return !!result?.acknowledged;
   };
 
@@ -396,7 +399,7 @@ class Model {
    * const isDeleted = await this.deleteOne({ status: 'inactive' });
    */
   deleteOne: MongoDelete = async (query) => {
-    const result = await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).deleteOne(query));
+    const result = await this.dispatchAction(async () => await this.$queryBuilder.deleteOne(this.$name, query));
     return !!result?.acknowledged;
   };
 
@@ -415,7 +418,7 @@ class Model {
    * const insertedDocument = await this.insertOne({ username: 'john_doe', status: 'active' });
    */
   insertOne: MongoInsertOne = async (document) => {
-    const result = await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).insertOne(this.processDocument(document)));
+    const result = await this.dispatchAction(async () => await this.$queryBuilder.insertOne(this.$name, this.processDocument(document)));
     return !!result?.acknowledged;
   };
 
@@ -435,7 +438,11 @@ class Model {
    */
   insertMany: MongoInsertMany = async (documents) => {
     const result = await this.dispatchAction(
-      async () => await Connection.$mongoConnection.collection(this.$name).insertMany(documents.map((doc) => this.processDocument(doc)))
+      async () =>
+        await this.$queryBuilder.insertMany(
+          this.$name,
+          documents.map((doc) => this.processDocument(doc))
+        )
     );
     return !!result?.acknowledged;
   };
@@ -446,7 +453,7 @@ class Model {
    *
    * @async
    * @method
-   * @memberof YourClassName
+   * @memberof Model
    * @param {MongoQuery} query - The query criteria to find an existing document.
    * @param {MongoDocument} document - The document to insert if no existing document is found.
    * @throws {Error} If an error occurs during the find or insert operation.
@@ -459,7 +466,7 @@ class Model {
    * const result = await this.findOneOrCreate(query, newDocument);
    */
   findOneOrCreate: MongoFindOneOrCreate = async (query, document) => {
-    const findOne = await this.dispatchAction(async () => await Connection.$mongoConnection.collection(this.$name).findOne(query), query);
+    const findOne = await this.dispatchAction(async () => await this.$queryBuilder.findOne(this.$name, query), query);
     if (findOne) return findOne;
     else return await this.insertOne(this.processDocument(document));
   };

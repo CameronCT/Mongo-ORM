@@ -1,21 +1,21 @@
-import MongoODM from "@cameronct/mongo-odm";
-import { MongoClient } from "mongodb";
-import mongoose from "mongoose";
+import MongoODM from '@cameronct/mongo-odm';
+import { MongoClient } from 'mongodb';
+import mongoose from 'mongoose';
 
 const uri = 'mongodb://127.0.0.1:27017/performance_test';
 new MongoODM.Connection(uri);
 
 function generateTestData() {
-    const documents = Array.from({ length: 50000 }, (_, index) => ({
-        name: `Student ${index}`,
-        age: Math.floor(Math.random() * 100),
-    }));
+  const documents = Array.from({ length: 50000 }, (_, index) => ({
+    name: `Student ${index}`,
+    age: Math.floor(Math.random() * 100)
+  }));
 
-    return documents;
+  return documents;
 }
 
 async function runMongoDBNativeTest() {
-  const client = new MongoClient(uri, { });
+  const client = new MongoClient(uri, {});
 
   try {
     await client.connect();
@@ -41,14 +41,14 @@ async function runMongoDBNativeTest() {
 
 async function runMongooseTest() {
   // Connect to MongoDB using Mongoose
-  await mongoose.connect(uri, { });
+  await mongoose.connect(uri, {});
 
   // Schemas
   // Define a Mongoose schema
   const MongooseSchema = new mongoose.Schema({
     name: String,
     age: Number,
-    courses: Array,
+    courses: Array
   });
 
   // Create a Mongoose model
@@ -78,8 +78,8 @@ async function runMeTest() {
   const MongoModel = new MongoODM.Model('mongoodm', [
     { name: 'name', type: MongoODM.FieldTypes.String },
     { name: 'age', type: MongoODM.FieldTypes.String },
-    { name: 'courses', type: MongoODM.FieldTypes.Array },
-  ])
+    { name: 'courses', type: MongoODM.FieldTypes.Array }
+  ]);
 
   // Start measuring time
   const startTime = new Date().getTime();
@@ -93,7 +93,6 @@ async function runMeTest() {
   const elapsedTime = endTime - startTime;
 
   console.log(`MongoODM Test completed in ${elapsedTime} milliseconds`);
-
 }
 
 async function main() {

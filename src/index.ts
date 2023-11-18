@@ -10,6 +10,7 @@
  * @name MongoODM
  */
 import Connection from './Connection';
+import QueryBuilder from './QueryBuilder';
 import Model from './Model';
 import FieldTypes from './FieldTypes';
 import { MongoODMInterface } from './types';
@@ -21,6 +22,7 @@ import { MongoODMInterface } from './types';
  */
 const exportData: MongoODMInterface = {
   Connection,
+  QueryBuilder,
   Model,
   FieldTypes
 };
