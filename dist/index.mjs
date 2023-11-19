@@ -28153,22 +28153,9 @@ var Model = class {
             processedDocument[field.name] = Object(document[field.name]);
           else
             processedDocument[field.name] = document[field.name];
-        } else if (typeof field.default !== "undefined") {
-          if (field.type === FieldTypes_default.Date)
-            processedDocument[field.name] = new Date(field.default);
-          else if (field.type === FieldTypes_default.Number)
-            processedDocument[field.name] = Number(field.default);
-          else if (field.type === FieldTypes_default.Boolean)
-            processedDocument[field.name] = Boolean(field.default);
-          else if (field.type === FieldTypes_default.ObjectId)
-            processedDocument[field.name] = String(field.default);
-          else if (field.type === FieldTypes_default.Array && !Array.isArray(field.default))
-            processedDocument[field.name] = Array(field.default);
-          else if (field.type === FieldTypes_default.Object)
-            processedDocument[field.name] = Object(field.default);
-          else
-            processedDocument[field.name] = field.default;
-        } else if (!isUpdate && field.required)
+        } else if (typeof field.default !== "undefined")
+          processedDocument[field.name] = field.default;
+        else if (!isUpdate && field.required)
           throw new Error(`Field ${field.name} is required but was not provided a value and does not have a default value to back up off.`);
       }
       processedDocument[isUpdate ? "updatedAt" : "createdAt"] = Math.ceil((/* @__PURE__ */ new Date()).getTime() / 1e3);
@@ -28407,7 +28394,7 @@ var Model = class {
      * const result = await this.findOneOrCreate(query, newDocument);
      */
     this.findOneOrCreate = async (query, document) => {
-      return await this.dispatchAction(async () => await this.$queryBuilder.findOneOrCreate(this.$name, query, document), query);
+      return await this.dispatchAction(async () => await this.$queryBuilder.findOneOrCreate(this.$name, query, this.processDocument(document)), query);
     };
     this.$queryBuilder = new QueryBuilder_default();
     this.$name = String(collectionName);
