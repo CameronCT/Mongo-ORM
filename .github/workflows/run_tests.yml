@@ -1,4 +1,4 @@
-name: Merge Test
+name: Quality Control
 on: [push]
 jobs:
   build:
