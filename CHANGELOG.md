@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added `FieldTypes.Mixed` as a Schema option (#1)
+- Added Jest tests (not conclusive yet) 
+- Added `QueryBuilder` class
+  - This will be the backbone to queries inside of Models
+  - Also provides an alternative method of just doing queries without going through the Model creation process.
+
+## [0.1.6/0.1.7] - 2023-11-17
+
+- Renamed project to Mongo-ODM
+- Updated Docs
+
 ## [0.1.5] - 2023-11-16
 
 - Added ESLint
