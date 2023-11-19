@@ -15,7 +15,7 @@
     "prettier": "prettier --config .prettierrc './src/**/*.{ts,tsx}' './test/**/*.{ts,tsx}' --write",
     "lint": "eslint . --ext .ts",
     "docs": "jsdoc -c jsdoc.conf.json",
-    "test": "jest --forceExit"
+    "test": "jest --coverage --forceExit"
   },
   "keywords": [
     "mongo",
