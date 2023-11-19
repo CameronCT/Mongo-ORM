@@ -1,7 +1,15 @@
-# @cameronct/mongo-odm
-![NPM](https://img.shields.io/badge/NPM-%23CB3837.svg?style=for-the-badge&logo=npm&logoColor=white)
-![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
+<p align="center" style="text-align: center">
+    <img src="https://i.imgur.com/0Mldh0I.png" />
+</p>
+<p align="center">
+    <a href="https://github.com/CameronCT" alt="Author">
+        <img src="https://img.shields.io/badge/GitHub-CameronCT-181717.svg?style=flat&logo=github" /></a>
+    <a href="https://codecov.io/github/CameronCT/Mongo-ODM" alt="MongoDB">
+        <img src="https://img.shields.io/codecov/c/github/CameronCT/Mongo-ODM" /></a>
+    <a href="https://codecov.io/github/CameronCT/Mongo-ODM" alt="MongoDB">
+        <img src="https://img.shields.io/github/issues/CameronCT/Mongo-ODM" /></a>
+    <img src="https://img.shields.io/github/license/CameronCT/Mongo-ODM" />
+</p>
 
 An insanely basic implementation of some form of Object Document Mapping (not ORM) for MongoDB. This was not really made to be used as a widely available package, it does not contain severely insane levels of logging. 
 

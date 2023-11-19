@@ -31,7 +31,7 @@ class QueryBuilder {
    *
    * @example
    * // Usage within the class:
-   * await this.generateIndexes();
+   * await this.createIndex("users", { userId: 1 }, { unique: true })
    */
   createIndex: MongoCreateIndex = async (collection, fields, options) => {
     return await Connection.$mongoConnection.collection(collection).createIndex(fields, options);
@@ -96,8 +96,7 @@ class QueryBuilder {
    * const cursor = await this.find({ status: 'active' });
    */
   find: MongoFindWithCollection = async (collection, query, options) => {
-    const results = await Connection.$mongoConnection.collection(collection).find(query, options);
-    return results.map((item) => item);
+    return await Connection.$mongoConnection.collection(collection).find(query, options);
   };
 
   /**
@@ -280,7 +279,7 @@ class QueryBuilder {
    *
    * @async
    * @method
-   * @memberof Model
+   * @memberof MongoODM.QueryBuilder
    * @param {String} collection - The name of the collection to count documents from.
    * @param {MongoQuery} query - The query criteria to find an existing document.
    * @param {MongoDocument} document - The document to insert if no existing document is found.

@@ -9,6 +9,7 @@
  * @property {string} Array - The MongoDB data type for an array field.
  * @property {string} Object - The MongoDB data type for an object field.
  * @property {string} ObjectId - The MongoDB data type for an ObjectId field.
+ * @property {string} Mixed - The MongoDB data type for a mixed field.
  */
 export default {
   String: 'string',
@@ -17,5 +18,6 @@ export default {
   Date: 'date',
   Array: 'array',
   Object: 'object',
-  ObjectId: 'objectId'
+  ObjectId: 'objectId',
+  Mixed: 'mixed',
 };

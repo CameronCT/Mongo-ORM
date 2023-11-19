@@ -27658,7 +27658,7 @@ var _Connection = class _Connection {
    * @param {string} [modelPath] - The path to the folder containing model files. Defaults to './src/models'.
    * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
    */
-  constructor(uri, modelPath) {
+  constructor(uri, modelPath, onConnect) {
     const useModelPath = modelPath || import_path.default.join(process.cwd(), "./src/models");
     const client = new import_mongodb.MongoClient(!uri ? "mongodb://127.0.0.1:27017/newapp" : uri);
     client.connect().then(() => {
@@ -27669,13 +27669,17 @@ var _Connection = class _Connection {
           getModelsFromFolder.forEach((model) => {
             const modelPath2 = import_path.default.join(useModelPath, model);
             const ModelClass = require(modelPath2).default;
-            ModelClass.generateIndexes();
+            if (typeof ModelClass.generateIndexes !== "undefined")
+              ModelClass.generateIndexes();
             _Connection.$models.push(ModelClass);
           });
         } catch (e) {
           Message_default(String(e).toString(), true);
         }
-        Message_default(`Connection Initialized (${_Connection.$models.length} models)!`);
+        if (typeof onConnect !== "undefined")
+          onConnect(_Connection.$models.length);
+        else
+          Message_default(`Connection Initialized (${_Connection.$models.length} models)!`);
         return _Connection.$mongoConnection;
       } else
         Message_default("Unable to connect to MongoDB!", true);
@@ -27731,7 +27735,7 @@ var QueryBuilder = class {
      *
      * @example
      * // Usage within the class:
-     * await this.generateIndexes();
+     * await this.createIndex("users", { userId: 1 }, { unique: true })
      */
     this.createIndex = async (collection, fields, options) => {
       return await Connection_default.$mongoConnection.collection(collection).createIndex(fields, options);
@@ -27793,8 +27797,7 @@ var QueryBuilder = class {
      * const cursor = await this.find({ status: 'active' });
      */
     this.find = async (collection, query, options) => {
-      const results = await Connection_default.$mongoConnection.collection(collection).find(query, options);
-      return results.map((item) => item);
+      return await Connection_default.$mongoConnection.collection(collection).find(query, options);
     };
     /**
      * Counts the number of documents in the MongoDB collection associated with the current instance
@@ -27966,7 +27969,7 @@ var QueryBuilder = class {
      *
      * @async
      * @method
-     * @memberof Model
+     * @memberof MongoODM.QueryBuilder
      * @param {String} collection - The name of the collection to count documents from.
      * @param {MongoQuery} query - The query criteria to find an existing document.
      * @param {MongoDocument} document - The document to insert if no existing document is found.
@@ -27998,7 +28001,8 @@ var FieldTypes_default = {
   Date: "date",
   Array: "array",
   Object: "object",
-  ObjectId: "objectId"
+  ObjectId: "objectId",
+  Mixed: "mixed"
 };
 
 // src/Model.ts
@@ -28108,7 +28112,7 @@ var Model = class {
      * @throws {Error} If a default value is incompatible with the field type.
      */
     this.processDefault = (field) => {
-      if (typeof field.default === "undefined")
+      if (typeof field.default === "undefined" || field.type === FieldTypes_default.Mixed)
         return;
       if (field.type === FieldTypes_default.String && typeof field.default !== "string" && field.default !== null)
         throw new Error(`Field is of type string but the default value is not a string or null.`);
@@ -28395,7 +28399,7 @@ var Model = class {
      *
      * @async
      * @method
-     * @memberof Model
+     * @memberof MongoODM.Model
      * @param {MongoQuery} query - The query criteria to find an existing document.
      * @param {MongoDocument} document - The document to insert if no existing document is found.
      * @throws {Error} If an error occurs during the find or insert operation.
