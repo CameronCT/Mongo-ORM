@@ -2,6 +2,7 @@
   "name": "@cameronct/mongo-odm",
   "version": "0.1.7",
   "description": "A very basic MongoDB ODM for Node.js",
+  "homepage": "https://cameronct.github.io/Mongo-ODM",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
