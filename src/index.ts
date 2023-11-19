@@ -4,6 +4,7 @@
  * @typedef {Object} MongoODMInterface
  * @property {Connection} Connection - The class representing a MongoDB connection.
  * @property {Model} Model - The class representing a MongoDB model with CRUD operations.
+ * @property {QueryBuilder} QueryBuilder - The class representing a MongoDB query builder.
  * @property {Object} FieldTypes - An object defining mapping between field types and MongoDB data types.
  *
  * @namespace

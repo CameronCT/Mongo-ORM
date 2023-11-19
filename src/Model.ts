@@ -156,7 +156,7 @@ class Model {
    * @throws {Error} If a default value is incompatible with the field type.
    */
   private processDefault = (field: FieldOptions) => {
-    if (typeof field.default === 'undefined') return;
+    if (typeof field.default === 'undefined' || field.type === FieldTypes.Mixed) return;
 
     if (field.type === FieldTypes.String && typeof field.default !== 'string' && field.default !== null)
       throw new Error(`Field is of type string but the default value is not a string or null.`);
@@ -442,7 +442,7 @@ class Model {
    *
    * @async
    * @method
-   * @memberof Model
+   * @memberof MongoODM.Model
    * @param {MongoQuery} query - The query criteria to find an existing document.
    * @param {MongoDocument} document - The document to insert if no existing document is found.
    * @throws {Error} If an error occurs during the find or insert operation.

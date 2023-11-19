@@ -36,7 +36,7 @@ class Connection {
    * @param {string} [modelPath] - The path to the folder containing model files. Defaults to './src/models'.
    * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
    */
-  constructor(uri?: string, modelPath?: string) {
+  constructor(uri?: string, modelPath?: string, onConnect?: (models: number) => void) {
     const useModelPath = modelPath || path.join(process.cwd(), './src/models');
     const client = new MongoClient(!uri ? 'mongodb://127.0.0.1:27017/newapp' : uri);
     client.connect().then(() => {
@@ -49,13 +49,17 @@ class Connection {
           getModelsFromFolder.forEach((model) => {
             const modelPath = path.join(useModelPath, model);
             const ModelClass = require(modelPath).default;
-            ModelClass.generateIndexes();
+            if (typeof ModelClass.generateIndexes !== 'undefined') ModelClass.generateIndexes();
             Connection.$models.push(ModelClass);
           });
         } catch (e) {
           Message(String(e).toString(), true);
         }
-        Message(`Connection Initialized (${Connection.$models.length} models)!`);
+        if (typeof onConnect !== 'undefined')  
+          onConnect(Connection.$models.length);
+        else 
+          Message(`Connection Initialized (${Connection.$models.length} models)!`);
+        
         return Connection.$mongoConnection;
       } else Message('Unable to connect to MongoDB!', true);
     });
