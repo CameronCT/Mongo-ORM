@@ -1,4 +1,4 @@
-import { Db, Filter, BSON, FindOptions, AggregateOptions, AggregationCursor } from 'mongodb';
+import { Db, Filter, BSON, FindOptions, AggregateOptions } from 'mongodb';
 
 declare class Model {
     /**
@@ -616,7 +616,7 @@ type MongoUpdateOneWithCollection = (
 type MongoUpdateManyWithCollection = (collection: string, filter: Filter<BSON.Document>, doc: T, useModifier?: string) => Promise<boolean>;
 type MongoDeleteWithCollection = (collection: string, filter: Filter<BSON.Document>) => Promise<boolean>;
 type MongoCountWithCollection = (collection: string, filter: Filter<BSON.Document>) => Promise<number>;
-type MongoAggregateWithCollection = (collection: string, pipeline: BSON.Document[], options?: AggregateOptions) => Promise<AggregationCursor<Document>>;
+type MongoAggregateWithCollection = (collection: string, pipeline: BSON.Document[], options?: AggregateOptions) => Promise<BSON.Document[]>;
 type MongoFindOneAndUpdateWithCollection = (
   collection: string,
   filter: Filter<BSON.Document>,

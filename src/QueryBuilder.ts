@@ -54,7 +54,8 @@ class QueryBuilder {
    * const aggregationResult = await this.aggregate([{ $match: { status: 'active' } }]);
    */
   aggregate: MongoAggregateWithCollection = async (collection, query, options) => {
-    return await Connection.$mongoConnection.collection(collection).aggregate(query, options);
+    const aggregateQuery = await Connection.$mongoConnection.collection(collection).aggregate(query, options);
+    return await aggregateQuery?.toArray() || [];
   };
 
   /**

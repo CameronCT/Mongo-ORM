@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.82] - 2023-12-27
+
+- Fixed bug with `QueryBuilder.aggregate` where the AggregationCursor would be returned instead of the `BSON.Document[]`.
+
 ## [0.1.81] - 2023-12-26
 
 - Fixed bug with `QueryBuilder.updateOne` and `QueryBuilder.findOneAndUpdate` where it would run `processDocument` and validate fields that would not exist.

@@ -27757,7 +27757,8 @@ var QueryBuilder = class {
      * const aggregationResult = await this.aggregate([{ $match: { status: 'active' } }]);
      */
     this.aggregate = async (collection, query, options) => {
-      return await Connection_default.$mongoConnection.collection(collection).aggregate(query, options);
+      const aggregateQuery = await Connection_default.$mongoConnection.collection(collection).aggregate(query, options);
+      return await aggregateQuery?.toArray() || [];
     };
     /**
      * Performs a find operation on the MongoDB collection associated with the current instance,
