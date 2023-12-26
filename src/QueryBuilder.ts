@@ -55,7 +55,7 @@ class QueryBuilder {
    */
   aggregate: MongoAggregateWithCollection = async (collection, query, options) => {
     const aggregateQuery = await Connection.$mongoConnection.collection(collection).aggregate(query, options);
-    return await aggregateQuery?.toArray() || [];
+    return (await aggregateQuery?.toArray()) || [];
   };
 
   /**
@@ -97,7 +97,8 @@ class QueryBuilder {
    * const cursor = await this.find({ status: 'active' });
    */
   find: MongoFindWithCollection = async (collection, query, options) => {
-    return await Connection.$mongoConnection.collection(collection).find(query, options);
+    const findQuery = await Connection.$mongoConnection.collection(collection).find(query, options);
+    return (await findQuery?.toArray()) || [];
   };
 
   /**
@@ -140,10 +141,9 @@ class QueryBuilder {
    * const updatedDocument = await this.findOneAndUpdate({ username: 'john_doe' }, { $set: { status: 'inactive' } });
    */
   findOneAndUpdate: MongoFindOneAndUpdateWithCollection = async (collection, query, update, upsert = false, useModifier = '$set') => {
-    const result = await Connection.$mongoConnection
+    return await Connection.$mongoConnection
       .collection(collection)
       .findOneAndUpdate(query, { [useModifier]: update }, { upsert: upsert, returnDocument: 'after' });
-    return result?.acknowledged ? await this.findOne(collection, { ...query }) : null;
   };
 
   /**

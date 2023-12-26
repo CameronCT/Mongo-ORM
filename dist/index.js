@@ -27798,7 +27798,8 @@ var QueryBuilder = class {
      * const cursor = await this.find({ status: 'active' });
      */
     this.find = async (collection, query, options) => {
-      return await Connection_default.$mongoConnection.collection(collection).find(query, options);
+      const findQuery = await Connection_default.$mongoConnection.collection(collection).find(query, options);
+      return await findQuery?.toArray() || [];
     };
     /**
      * Counts the number of documents in the MongoDB collection associated with the current instance
@@ -27839,8 +27840,7 @@ var QueryBuilder = class {
      * const updatedDocument = await this.findOneAndUpdate({ username: 'john_doe' }, { $set: { status: 'inactive' } });
      */
     this.findOneAndUpdate = async (collection, query, update, upsert = false, useModifier = "$set") => {
-      const result = await Connection_default.$mongoConnection.collection(collection).findOneAndUpdate(query, { [useModifier]: update }, { upsert, returnDocument: "after" });
-      return result?.acknowledged ? await this.findOne(collection, { ...query }) : null;
+      return await Connection_default.$mongoConnection.collection(collection).findOneAndUpdate(query, { [useModifier]: update }, { upsert, returnDocument: "after" });
     };
     /**
      * Updates a single document in the MongoDB collection associated with the current instance.

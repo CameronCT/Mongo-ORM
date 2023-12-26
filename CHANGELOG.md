@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.83] - 2023-12-27
+
+- Fixed bug with `QueryBuilder.find` where `FindCursor` would be returned instead of `BSON.Document[]`
+- Fixed bug with `QueryBuilder.findOneAndUpdate` where it would not return the updated document.
+- Added more debugging in `/test` to properly test more methods between Query Builder and Model instances.
+
 ## [0.1.82] - 2023-12-27
 
 - Fixed bug with `QueryBuilder.aggregate` where the AggregationCursor would be returned instead of the `BSON.Document[]`.
