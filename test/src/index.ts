@@ -13,14 +13,20 @@ app.get('/test-db', async (req, res) => {
   const useEmail = `t2${getTimestamp}.${getRandom}@example.com`;
   console.log(`Attempting creation with email ${useEmail}`);
 
-  const createUser = await User.findOneOrCreate({ email: useEmail }, { name: 'Test User', email: useEmail, password: 'test123', courses: [ "Math", "Geometry" ], mixed: [ "test", "array", "mixed"] }).catch((e: string) =>
-    console.log(e)
-  );
+  const createUser = await User.findOneOrCreate(
+    { email: useEmail },
+    { name: 'Test User', email: useEmail, password: 'test123', courses: ['Math', 'Geometry'], mixed: ['test', 'array', 'mixed'] }
+  ).catch((e: string) => console.log(e));
+  const updateUser = await User.updateOne({ email: useEmail }, { name: 'Test User (updated)' }).catch((e: string) => console.log(e));
   const queryBuilder = new MongoODM.QueryBuilder();
   const countUsers = await User.count({ email: { $regex: '@example.com', $options: 'i' } }).catch((e: string) => console.log(e));
   const countUsersLegacy = await queryBuilder.count('users', { email: { $regex: '@example.com', $options: 'i' } }).catch((e: string) => console.log(e));
   res.send(
-    `Hello, welcome to the Express TypeScript app! We have generated ${countUsers} (or ${countUsersLegacy} legacy count) users in the database! Most recent one has the document: \n\n<div>${JSON.stringify(createUser, null, 2)}</div>`
+    `Hello, welcome to the Express TypeScript app! We have generated ${countUsers} (or ${countUsersLegacy} legacy count) users in the database! Most recent one has the document: \n\n<div>${JSON.stringify(
+      createUser,
+      null,
+      2
+    )}\n\n<div>${JSON.stringify(updateUser, null, 2)}</div>`
   );
 });
 

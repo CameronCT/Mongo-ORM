@@ -19,5 +19,5 @@ export default {
   Array: 'array',
   Object: 'object',
   ObjectId: 'objectId',
-  Mixed: 'mixed',
+  Mixed: 'mixed'
 };

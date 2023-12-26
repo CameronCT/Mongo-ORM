@@ -55,11 +55,9 @@ class Connection {
         } catch (e) {
           Message(String(e).toString(), true);
         }
-        if (typeof onConnect !== 'undefined')  
-          onConnect(Connection.$models.length);
-        else 
-          Message(`Connection Initialized (${Connection.$models.length} models)!`);
-        
+        if (typeof onConnect !== 'undefined') onConnect(Connection.$models.length);
+        else Message(`Connection Initialized (${Connection.$models.length} models)!`);
+
         return Connection.$mongoConnection;
       } else Message('Unable to connect to MongoDB!', true);
     });

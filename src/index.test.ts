@@ -1,7 +1,7 @@
-import path from "path";
-import MongoODM from "./index";
+import path from 'path';
+import MongoODM from './index';
 
-new MongoODM.Connection("", path.join(process.cwd(), './test/src/models'), () => false);
+new MongoODM.Connection('', path.join(process.cwd(), './test/src/models'), () => false);
 
 /*
 const delayAsync = (ms: number) => {
@@ -15,27 +15,25 @@ const delayAsync = (ms: number) => {
 }
 */
 
-describe("MongoODM", () => {
-  test("MongoODM is an exported object", () => {
-    expect(typeof MongoODM).toBe("object");
+describe('MongoODM', () => {
+  test('MongoODM is an exported object', () => {
+    expect(typeof MongoODM).toBe('object');
   });
 
-  test("MongoODM has a Connection property", () => {
-    expect(typeof MongoODM.Connection).toBe("function");
+  test('MongoODM has a Connection property', () => {
+    expect(typeof MongoODM.Connection).toBe('function');
   });
 
-  test("MongoODM has a QueryBuilder property", () => {
-    expect(typeof MongoODM.QueryBuilder).toBe("function");
+  test('MongoODM has a QueryBuilder property', () => {
+    expect(typeof MongoODM.QueryBuilder).toBe('function');
   });
 
-  test("MongoODM has a Model property", () => {
-    expect(typeof MongoODM.Model).toBe("function");
+  test('MongoODM has a Model property', () => {
+    expect(typeof MongoODM.Model).toBe('function');
   });
 
-  test("Can create a Model and initiate it", async () => {
-    const TestModel = new MongoODM.Model("test", [
-      { name: 'name', type: MongoODM.FieldTypes.String },
-    ]);
+  test('Can create a Model and initiate it', async () => {
+    const TestModel = new MongoODM.Model('test', [{ name: 'name', type: MongoODM.FieldTypes.String }]);
 
     expect(TestModel).toBeTruthy();
   });

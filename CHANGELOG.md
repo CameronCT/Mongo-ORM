@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.81] - 2023-12-26
+
+- Fixed bug with `QueryBuilder.updateOne` and `QueryBuilder.findOneAndUpdate` where it would run `processDocument` and validate fields that would not exist.
+
 ## [0.1.8] - 2023-11-18
 
 - Added `FieldTypes.Mixed` as a Schema option (#1)

@@ -28135,28 +28135,51 @@ var Model = class {
      */
     this.processDocument = (document, isUpdate = false) => {
       const processedDocument = {};
-      const fieldLength = this.$fieldOptions.length;
-      for (let i = 0; i < fieldLength; i++) {
-        const field = this.$fieldOptions[i];
-        if (document[field.name]) {
-          if (field.type === FieldTypes_default.Date)
-            processedDocument[field.name] = new Date(document[field.name]);
-          else if (field.type === FieldTypes_default.Number)
-            processedDocument[field.name] = Number(document[field.name]);
-          else if (field.type === FieldTypes_default.Boolean)
-            processedDocument[field.name] = Boolean(document[field.name]);
-          else if (field.type === FieldTypes_default.ObjectId)
-            processedDocument[field.name] = String(document[field.name]);
-          else if (field.type === FieldTypes_default.Array && !Array.isArray(document[field.name]))
-            processedDocument[field.name] = Array(document[field.name]);
-          else if (field.type === FieldTypes_default.Object)
-            processedDocument[field.name] = Object(document[field.name]);
-          else
-            processedDocument[field.name] = document[field.name];
-        } else if (typeof field.default !== "undefined")
-          processedDocument[field.name] = field.default;
-        else if (!isUpdate && field.required)
-          throw new Error(`Field ${field.name} is required but was not provided a value and does not have a default value to back up off.`);
+      if (!isUpdate) {
+        const fieldLength = this.$fieldOptions.length;
+        for (let i = 0; i < fieldLength; i++) {
+          const field = this.$fieldOptions[i];
+          if (document[field.name]) {
+            if (field.type === FieldTypes_default.Date)
+              processedDocument[field.name] = new Date(document[field.name]);
+            else if (field.type === FieldTypes_default.Number)
+              processedDocument[field.name] = Number(document[field.name]);
+            else if (field.type === FieldTypes_default.Boolean)
+              processedDocument[field.name] = Boolean(document[field.name]);
+            else if (field.type === FieldTypes_default.ObjectId)
+              processedDocument[field.name] = String(document[field.name]);
+            else if (field.type === FieldTypes_default.Array && !Array.isArray(document[field.name]))
+              processedDocument[field.name] = Array(document[field.name]);
+            else if (field.type === FieldTypes_default.Object)
+              processedDocument[field.name] = Object(document[field.name]);
+            else
+              processedDocument[field.name] = document[field.name];
+          } else if (typeof field.default !== "undefined")
+            processedDocument[field.name] = field.default;
+          else if (!isUpdate && field.required)
+            throw new Error(`Field ${field.name} is required but was not provided a value and does not have a default value to back up off.`);
+        }
+      } else if (isUpdate) {
+        const totalFields = Object.keys(document).length;
+        for (let i = 0; i < totalFields; i++) {
+          const field = this.$fieldOptions.find((f) => f.name === Object.keys(document)[i]);
+          if (field) {
+            if (field.type === FieldTypes_default.Date)
+              processedDocument[field.name] = new Date(document[field.name]);
+            else if (field.type === FieldTypes_default.Number)
+              processedDocument[field.name] = Number(document[field.name]);
+            else if (field.type === FieldTypes_default.Boolean)
+              processedDocument[field.name] = Boolean(document[field.name]);
+            else if (field.type === FieldTypes_default.ObjectId)
+              processedDocument[field.name] = String(document[field.name]);
+            else if (field.type === FieldTypes_default.Array && !Array.isArray(document[field.name]))
+              processedDocument[field.name] = Array(document[field.name]);
+            else if (field.type === FieldTypes_default.Object)
+              processedDocument[field.name] = Object(document[field.name]);
+            else
+              processedDocument[field.name] = document[field.name];
+          }
+        }
       }
       processedDocument[isUpdate ? "updatedAt" : "createdAt"] = Math.ceil((/* @__PURE__ */ new Date()).getTime() / 1e3);
       return processedDocument;
