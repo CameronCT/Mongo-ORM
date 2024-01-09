@@ -9,6 +9,7 @@
       "skipLibCheck": true,
       "declaration": true,
       "sourceMap": true,
+      "allowJs": true
   },
   "include": [
       "src/index.ts",

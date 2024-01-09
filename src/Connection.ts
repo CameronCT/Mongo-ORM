@@ -46,17 +46,11 @@ class Connection {
         // Get all Models in Models Folder and Initialize Class
         try {
           const getModelsFromFolder = fs.readdirSync(useModelPath);
-          getModelsFromFolder.forEach((model) => {
-            const modelPath = path.join(useModelPath, model);
-            const ModelClass = require(modelPath).default;
-            if (typeof ModelClass.generateIndexes !== 'undefined') ModelClass.generateIndexes();
-            Connection.$models.push(ModelClass);
-          });
+          if (typeof onConnect !== 'undefined') onConnect(getModelsFromFolder?.length);
+          else Message(`Connection Initialized (${getModelsFromFolder?.length} models)!`);
         } catch (e) {
           Message(String(e).toString(), true);
         }
-        if (typeof onConnect !== 'undefined') onConnect(Connection.$models.length);
-        else Message(`Connection Initialized (${Connection.$models.length} models)!`);
 
         return Connection.$mongoConnection;
       } else Message('Unable to connect to MongoDB!', true);

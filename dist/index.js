@@ -27666,20 +27666,13 @@ var _Connection = class _Connection {
       if (_Connection.$mongoConnection) {
         try {
           const getModelsFromFolder = import_fs.default.readdirSync(useModelPath);
-          getModelsFromFolder.forEach((model) => {
-            const modelPath2 = import_path.default.join(useModelPath, model);
-            const ModelClass = require(modelPath2).default;
-            if (typeof ModelClass.generateIndexes !== "undefined")
-              ModelClass.generateIndexes();
-            _Connection.$models.push(ModelClass);
-          });
+          if (typeof onConnect !== "undefined")
+            onConnect(getModelsFromFolder?.length);
+          else
+            Message_default(`Connection Initialized (${getModelsFromFolder?.length} models)!`);
         } catch (e) {
           Message_default(String(e).toString(), true);
         }
-        if (typeof onConnect !== "undefined")
-          onConnect(_Connection.$models.length);
-        else
-          Message_default(`Connection Initialized (${_Connection.$models.length} models)!`);
         return _Connection.$mongoConnection;
       } else
         Message_default("Unable to connect to MongoDB!", true);

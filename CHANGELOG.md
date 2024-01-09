@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.85] - 2024-01-08
+
+- Removed appending of `Model` to `Connection.$models` - it is causing conflict with production environments.
+
 ## [0.1.84] - 2024-01-08
 
 - Fixed bug with `Model.updateMany` where `useModifier` was not being properly used.
