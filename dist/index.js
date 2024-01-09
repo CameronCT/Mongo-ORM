@@ -27659,7 +27659,7 @@ var _Connection = class _Connection {
    * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
    */
   constructor(uri, modelPath, onConnect) {
-    const useModelPath = modelPath || import_path.default.join(process.cwd(), "./src/models");
+    const useModelPath = modelPath || this.checkAndReturnModelPath();
     const client = new import_mongodb.MongoClient(!uri ? "mongodb://127.0.0.1:27017/newapp" : uri);
     client.connect().then(() => {
       _Connection.$mongoConnection = client.db();
@@ -27709,6 +27709,28 @@ var _Connection = class _Connection {
       }
     }
     return v;
+  }
+  /**
+   * Static method to find and return the proper path to the models folder.
+   *
+   * @static
+   * @method
+   * @memberof Connection
+   * @returns {string} The path to the models folder.
+   *
+   * @example
+   * // Usage:
+   * const modelPath = Connection.checkAndReturnModelPath();
+   **/
+  checkAndReturnModelPath() {
+    const paths = [import_path.default.join(process.cwd(), "./src/models"), import_path.default.join(process.cwd(), "./dist/models"), import_path.default.join(process.cwd(), "./models")];
+    let modelPath = "";
+    paths.forEach((p) => {
+      if (import_fs.default.existsSync(p)) {
+        modelPath = p;
+      }
+    });
+    return modelPath;
   }
 };
 /**
@@ -28329,7 +28351,7 @@ var Model = class {
      */
     this.updateMany = async (query, document, useModifier = "$set") => {
       return await this.dispatchAction(
-        async () => await this.$queryBuilder.updateMany(this.$name, query, { [useModifier]: this.processDocument(document, true) }),
+        async () => await this.$queryBuilder.updateMany(this.$name, query, this.processDocument(document, true), useModifier),
         query
       );
     };

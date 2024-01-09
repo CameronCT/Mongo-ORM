@@ -335,6 +335,19 @@ declare class Connection {
      * const sanitizedValue = Connection.sanitize({ $key: 'value', nested: { $property: 'nestedValue' } });
      */
     static sanitize(v: DefaultValue): any;
+    /**
+     * Static method to find and return the proper path to the models folder.
+     *
+     * @static
+     * @method
+     * @memberof Connection
+     * @returns {string} The path to the models folder.
+     *
+     * @example
+     * // Usage:
+     * const modelPath = Connection.checkAndReturnModelPath();
+     **/
+    private checkAndReturnModelPath;
 }
 
 declare class QueryBuilder {

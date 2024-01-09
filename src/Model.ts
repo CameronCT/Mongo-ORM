@@ -369,7 +369,7 @@ class Model {
    */
   updateMany: MongoUpdateMany = async (query, document, useModifier = '$set') => {
     return await this.dispatchAction(
-      async () => await this.$queryBuilder.updateMany(this.$name, query, { [useModifier]: this.processDocument(document, true) }),
+      async () => await this.$queryBuilder.updateMany(this.$name, query, this.processDocument(document, true), useModifier),
       query
     );
   };

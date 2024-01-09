@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.84] - 2024-01-08
+
+- Fixed bug with `Model.updateMany` where `useModifier` was not being properly used.
+- Possibly fixed issue where Model loading would throw a "cannot import outside of a module" error.
+- Added `checkAndReturnModelPath` to check for multiple directories to make sure Models are being fetched in most development and production environments.
+
 ## [0.1.83] - 2023-12-27
 
 - Fixed bug with `QueryBuilder.find` where `FindCursor` would be returned instead of `BSON.Document[]`

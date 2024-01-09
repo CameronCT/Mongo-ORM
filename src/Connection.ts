@@ -37,7 +37,7 @@ class Connection {
    * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
    */
   constructor(uri?: string, modelPath?: string, onConnect?: (models: number) => void) {
-    const useModelPath = modelPath || path.join(process.cwd(), './src/models');
+    const useModelPath = modelPath || this.checkAndReturnModelPath();
     const client = new MongoClient(!uri ? 'mongodb://127.0.0.1:27017/newapp' : uri);
     client.connect().then(() => {
       Connection.$mongoConnection = client.db();
@@ -87,6 +87,31 @@ class Connection {
       }
     }
     return v;
+  }
+
+  /**
+   * Static method to find and return the proper path to the models folder.
+   *
+   * @static
+   * @method
+   * @memberof Connection
+   * @returns {string} The path to the models folder.
+   *
+   * @example
+   * // Usage:
+   * const modelPath = Connection.checkAndReturnModelPath();
+   **/
+  private checkAndReturnModelPath() {
+    const paths = [path.join(process.cwd(), './src/models'), path.join(process.cwd(), './dist/models'), path.join(process.cwd(), './models')];
+
+    let modelPath = '';
+    paths.forEach((p) => {
+      if (fs.existsSync(p)) {
+        modelPath = p;
+      }
+    });
+
+    return modelPath;
   }
 }
 
