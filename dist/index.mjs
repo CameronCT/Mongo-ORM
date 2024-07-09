@@ -27645,33 +27645,41 @@ var Message_default = Message;
 import fs from "fs";
 import path from "path";
 var _Connection = class _Connection {
+  constructor(uri, modelPath) {
+    this.uri = uri;
+    this.modelPath = modelPath;
+  }
   /**
-   * Creates an instance of the Connection class and establishes a connection to the MongoDB database.
+   * Static method to establish a connection to the MongoDB database.
    *
-   * @constructor
-   * @param {string} [uri] - The URI of the MongoDB database. Defaults to 'mongodb://127.0.0.1:27017/newapp'.
-   * @param {string} [modelPath] - The path to the folder containing model files. Defaults to './src/models'.
-   * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
+   * @param {string} [uri] - The URI of the MongoDB database.
+   * @param {string} [modelPath] - The path to the folder containing model files.
+   * @param {Function} [onConnect] - Callback function to be called after connection.
+   * @returns {Promise<Connection>} - A promise that resolves to an instance of the Connection class.
    */
-  constructor(uri, modelPath, onConnect) {
-    const useModelPath = modelPath || this.checkAndReturnModelPath();
-    const client = new import_mongodb.MongoClient(!uri ? "mongodb://127.0.0.1:27017/newapp" : uri);
-    client.connect().then(() => {
+  static async create(uri = "mongodb://127.0.0.1:27017/newapp", modelPath = _Connection.checkAndReturnModelPath(), onConnect) {
+    const connection = new _Connection(uri, modelPath);
+    await connection.initialize(onConnect);
+    return connection;
+  }
+  async initialize(onConnect) {
+    const client = new import_mongodb.MongoClient("mongodb://127.0.0.1:27017/newapp");
+    try {
+      await client.connect();
       _Connection.$mongoConnection = client.db();
       if (_Connection.$mongoConnection) {
-        try {
-          const getModelsFromFolder = fs.readdirSync(useModelPath);
-          if (typeof onConnect !== "undefined")
-            onConnect(getModelsFromFolder?.length);
-          else
-            Message_default(`Connection Initialized (${getModelsFromFolder?.length} models)!`);
-        } catch (e) {
-          Message_default(String(e).toString(), true);
+        const getModelsFromFolder = fs.readdirSync(this.modelPath);
+        if (typeof onConnect !== "undefined") {
+          onConnect(getModelsFromFolder?.length);
+        } else {
+          Message_default(`Connection Initialized (${getModelsFromFolder?.length} models)!`);
         }
-        return _Connection.$mongoConnection;
-      } else
+      } else {
         Message_default("Unable to connect to MongoDB!", true);
-    });
+      }
+    } catch (e) {
+      Message_default(`Error: ${e.message}`, true);
+    }
   }
   /**
    * Static method to sanitize an object by removing properties with keys starting with '$'.
@@ -27710,7 +27718,7 @@ var _Connection = class _Connection {
    * // Usage:
    * const modelPath = Connection.checkAndReturnModelPath();
    **/
-  checkAndReturnModelPath() {
+  static checkAndReturnModelPath() {
     const paths = [path.join(process.cwd(), "./src/models"), path.join(process.cwd(), "./dist/models"), path.join(process.cwd(), "./models")];
     let modelPath = "";
     paths.forEach((p) => {
@@ -28456,7 +28464,8 @@ var exportData = {
   Connection: Connection_default,
   QueryBuilder: QueryBuilder_default,
   Model: Model_default,
-  FieldTypes: FieldTypes_default
+  FieldTypes: FieldTypes_default,
+  connect: Connection_default.create
 };
 var src_default = exportData;
 export {

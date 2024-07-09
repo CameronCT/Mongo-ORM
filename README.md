@@ -25,13 +25,13 @@ To get started you must install the package via your dependency manager (you can
 import MongoODM from "@cameronct/mongo-odm";
 
 // Basic
-new MongoODM.Connection();
+await MongoODM.connect();
 
 // With Connection URI
-new MongoODM.Connection("mongodb://localhost:27017/my-app");
+await MongoODM.connect("mongodb://localhost:27017/my-app");
 
 // With Custom Models Folder
-new MongoODM.Connection("mongodb://localhost:27017/my-app", path.join(__dirname, "path/to/models"));
+await MongoODM.connect("mongodb://localhost:27017/my-app", path.join(__dirname, "path/to/models"));
 ```
 
 ### Creating a Model

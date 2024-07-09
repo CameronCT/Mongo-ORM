@@ -184,7 +184,7 @@ class Model {
    * @throws {Error} If a default value is incompatible with the field type.
    */
   private processDefault = (field: FieldOptions) => {
-    if (typeof field.default === 'undefined') return;
+    if (typeof field.default === 'undefined' || field.type === FieldTypes.Mixed) return;
 
     if (field.type === FieldTypes.String &amp;&amp; typeof field.default !== 'string' &amp;&amp; field.default !== null)
       throw new Error(`Field is of type string but the default value is not a string or null.`);
@@ -211,28 +211,41 @@ class Model {
    */
   private processDocument = (document: MongoDocument, isUpdate: boolean = false) => {
     const processedDocument: MongoDocument = {};
-    const fieldLength = this.$fieldOptions.length;
 
-    for (let i = 0; i &lt; fieldLength; i++) {
-      const field = this.$fieldOptions[i];
-      if (document[field.name]) {
-        if (field.type === FieldTypes.Date) processedDocument[field.name] = new Date(document[field.name]);
-        else if (field.type === FieldTypes.Number) processedDocument[field.name] = Number(document[field.name]);
-        else if (field.type === FieldTypes.Boolean) processedDocument[field.name] = Boolean(document[field.name]);
-        else if (field.type === FieldTypes.ObjectId) processedDocument[field.name] = String(document[field.name]);
-        else if (field.type === FieldTypes.Array &amp;&amp; !Array.isArray(document[field.name])) processedDocument[field.name] = Array(document[field.name]);
-        else if (field.type === FieldTypes.Object) processedDocument[field.name] = Object(document[field.name]);
-        else processedDocument[field.name] = document[field.name];
-      } else if (typeof field.default !== 'undefined') {
-        if (field.type === FieldTypes.Date) processedDocument[field.name] = new Date(field.default);
-        else if (field.type === FieldTypes.Number) processedDocument[field.name] = Number(field.default);
-        else if (field.type === FieldTypes.Boolean) processedDocument[field.name] = Boolean(field.default);
-        else if (field.type === FieldTypes.ObjectId) processedDocument[field.name] = String(field.default);
-        else if (field.type === FieldTypes.Array &amp;&amp; !Array.isArray(field.default)) processedDocument[field.name] = Array(field.default);
-        else if (field.type === FieldTypes.Object) processedDocument[field.name] = Object(field.default);
-        else processedDocument[field.name] = field.default;
-      } else if (!isUpdate &amp;&amp; field.required)
-        throw new Error(`Field ${field.name} is required but was not provided a value and does not have a default value to back up off.`);
+    // If this is a new document, process the default values
+    if (!isUpdate) {
+      const fieldLength = this.$fieldOptions.length;
+
+      for (let i = 0; i &lt; fieldLength; i++) {
+        const field = this.$fieldOptions[i];
+        if (document[field.name]) {
+          if (field.type === FieldTypes.Date) processedDocument[field.name] = new Date(document[field.name]);
+          else if (field.type === FieldTypes.Number) processedDocument[field.name] = Number(document[field.name]);
+          else if (field.type === FieldTypes.Boolean) processedDocument[field.name] = Boolean(document[field.name]);
+          else if (field.type === FieldTypes.ObjectId) processedDocument[field.name] = String(document[field.name]);
+          else if (field.type === FieldTypes.Array &amp;&amp; !Array.isArray(document[field.name])) processedDocument[field.name] = Array(document[field.name]);
+          else if (field.type === FieldTypes.Object) processedDocument[field.name] = Object(document[field.name]);
+          else processedDocument[field.name] = document[field.name];
+        } else if (typeof field.default !== 'undefined') processedDocument[field.name] = field.default;
+        else if (!isUpdate &amp;&amp; field.required)
+          throw new Error(`Field ${field.name} is required but was not provided a value and does not have a default value to back up off.`);
+      }
+      // If this is NOT a new document, do not process fields that won't exist
+    } else if (isUpdate) {
+      const totalFields = Object.keys(document).length;
+
+      for (let i = 0; i &lt; totalFields; i++) {
+        const field = this.$fieldOptions.find((f) => f.name === Object.keys(document)[i]);
+        if (field) {
+          if (field.type === FieldTypes.Date) processedDocument[field.name] = new Date(document[field.name]);
+          else if (field.type === FieldTypes.Number) processedDocument[field.name] = Number(document[field.name]);
+          else if (field.type === FieldTypes.Boolean) processedDocument[field.name] = Boolean(document[field.name]);
+          else if (field.type === FieldTypes.ObjectId) processedDocument[field.name] = String(document[field.name]);
+          else if (field.type === FieldTypes.Array &amp;&amp; !Array.isArray(document[field.name])) processedDocument[field.name] = Array(document[field.name]);
+          else if (field.type === FieldTypes.Object) processedDocument[field.name] = Object(document[field.name]);
+          else processedDocument[field.name] = document[field.name];
+        }
+      }
     }
 
     processedDocument[isUpdate ? 'updatedAt' : 'createdAt'] = Math.ceil(new Date().getTime() / 1000);
@@ -384,7 +397,7 @@ class Model {
    */
   updateMany: MongoUpdateMany = async (query, document, useModifier = '$set') => {
     return await this.dispatchAction(
-      async () => await this.$queryBuilder.updateMany(this.$name, query, { [useModifier]: this.processDocument(document, true) }),
+      async () => await this.$queryBuilder.updateMany(this.$name, query, this.processDocument(document, true), useModifier),
       query
     );
   };
@@ -470,7 +483,7 @@ class Model {
    *
    * @async
    * @method
-   * @memberof Model
+   * @memberof MongoODM.Model
    * @param {MongoQuery} query - The query criteria to find an existing document.
    * @param {MongoDocument} document - The document to insert if no existing document is found.
    * @throws {Error} If an error occurs during the find or insert operation.
@@ -483,7 +496,7 @@ class Model {
    * const result = await this.findOneOrCreate(query, newDocument);
    */
   findOneOrCreate: MongoFindOneOrCreate = async (query, document) => {
-    return await this.dispatchAction(async () => await this.$queryBuilder.findOneOrCreate(this.$name, query, document), query);
+    return await this.dispatchAction(async () => await this.$queryBuilder.findOneOrCreate(this.$name, query, this.processDocument(document)), query);
   };
 }
 
@@ -504,7 +517,7 @@ export default Model;
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sat Nov 18 2023 15:07:43 GMT-0700 (Mountain Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Mon Jul 08 2024 23:23:28 GMT-0600 (Mountain Daylight Saving Time)
 </footer>
 
 <script> prettyPrint(); </script>
