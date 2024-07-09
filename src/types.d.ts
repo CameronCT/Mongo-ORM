@@ -50,6 +50,7 @@ export interface MongoODMInterface {
   QueryBuilder: typeof QueryBuilder;
   Model: typeof Model;
   FieldTypes: FieldTypes;
+  connect: typeof Connection.create;
 }
 
 export interface FieldOptions {

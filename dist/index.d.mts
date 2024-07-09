@@ -313,14 +313,30 @@ declare class Connection {
      */
     static $models: Model[];
     /**
-     * Creates an instance of the Connection class and establishes a connection to the MongoDB database.
+     * The URI of the MongoDB database.
      *
-     * @constructor
-     * @param {string} [uri] - The URI of the MongoDB database. Defaults to 'mongodb://127.0.0.1:27017/newapp'.
-     * @param {string} [modelPath] - The path to the folder containing model files. Defaults to './src/models'.
-     * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
+     * @member {string}
+     * @private
      */
-    constructor(uri?: string, modelPath?: string, onConnect?: (models: number) => void);
+    private uri;
+    /**
+     * The path to the folder containing model files.
+     *
+     * @member {string}
+     * @private
+     */
+    private modelPath;
+    private constructor();
+    /**
+     * Static method to establish a connection to the MongoDB database.
+     *
+     * @param {string} [uri] - The URI of the MongoDB database.
+     * @param {string} [modelPath] - The path to the folder containing model files.
+     * @param {Function} [onConnect] - Callback function to be called after connection.
+     * @returns {Promise<Connection>} - A promise that resolves to an instance of the Connection class.
+     */
+    static create(uri?: string, modelPath?: string, onConnect?: (models: number) => void): Promise<Connection>;
+    private initialize;
     /**
      * Static method to sanitize an object by removing properties with keys starting with '$'.
      *
@@ -347,7 +363,7 @@ declare class Connection {
      * // Usage:
      * const modelPath = Connection.checkAndReturnModelPath();
      **/
-    private checkAndReturnModelPath;
+    private static checkAndReturnModelPath;
 }
 
 declare class QueryBuilder {
@@ -645,6 +661,7 @@ interface MongoODMInterface {
   QueryBuilder: typeof QueryBuilder;
   Model: typeof Model;
   FieldTypes: _default;
+  connect: typeof Connection.create;
 }
 
 interface FieldOptions {
