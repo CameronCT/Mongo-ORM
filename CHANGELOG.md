@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.90] - 2024-07-08
+
+- Updated `MongoODM.Connection` to use async to prevent further execution of database queries. (#6)
+- Added better jest (still basic) testing that performs database queries now. (#5)
+- Added `MongoODM.connect()` as a substitute of doing `MongoODM.Connection`
+
 ## [0.1.85] - 2024-01-08
 
 - Removed appending of `Model` to `Connection.$models` - it is causing conflict with production environments.
