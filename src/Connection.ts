@@ -29,32 +29,64 @@ class Connection {
   static $models: Model[] = [];
 
   /**
-   * Creates an instance of the Connection class and establishes a connection to the MongoDB database.
+   * The URI of the MongoDB database.
    *
-   * @constructor
-   * @param {string} [uri] - The URI of the MongoDB database. Defaults to 'mongodb://127.0.0.1:27017/newapp'.
-   * @param {string} [modelPath] - The path to the folder containing model files. Defaults to './src/models'.
-   * @throws {Error} If unable to connect to MongoDB or encounter errors while initializing models.
+   * @member {string}
+   * @private
    */
-  constructor(uri?: string, modelPath?: string, onConnect?: (models: number) => void) {
-    const useModelPath = modelPath || this.checkAndReturnModelPath();
-    const client = new MongoClient(!uri ? 'mongodb://127.0.0.1:27017/newapp' : uri);
-    client.connect().then(() => {
+  private uri: string;
+
+  /**
+   * The path to the folder containing model files.
+   *
+   * @member {string}
+   * @private
+   */
+  private modelPath: string;
+
+  private constructor(uri: string, modelPath?: string) {
+    this.uri = uri;
+    this.modelPath = modelPath;
+  }
+
+  /**
+   * Static method to establish a connection to the MongoDB database.
+   *
+   * @param {string} [uri] - The URI of the MongoDB database.
+   * @param {string} [modelPath] - The path to the folder containing model files.
+   * @param {Function} [onConnect] - Callback function to be called after connection.
+   * @returns {Promise<Connection>} - A promise that resolves to an instance of the Connection class.
+   */
+  static async create(
+    uri: string = 'mongodb://127.0.0.1:27017/newapp',
+    modelPath: string = Connection.checkAndReturnModelPath(),
+    onConnect?: (models: number) => void
+  ): Promise<Connection> {
+    const connection = new Connection(uri, modelPath);
+    await connection.initialize(onConnect);
+    return connection;
+  }
+
+  private async initialize(onConnect?: (models: number) => void): Promise<void> {
+    const client = new MongoClient('mongodb://127.0.0.1:27017/newapp');
+
+    try {
+      await client.connect();
       Connection.$mongoConnection = client.db();
 
       if (Connection.$mongoConnection) {
-        // Get all Models in Models Folder and Initialize Class
-        try {
-          const getModelsFromFolder = fs.readdirSync(useModelPath);
-          if (typeof onConnect !== 'undefined') onConnect(getModelsFromFolder?.length);
-          else Message(`Connection Initialized (${getModelsFromFolder?.length} models)!`);
-        } catch (e) {
-          Message(String(e).toString(), true);
+        const getModelsFromFolder = fs.readdirSync(this.modelPath);
+        if (typeof onConnect !== 'undefined') {
+          onConnect(getModelsFromFolder?.length);
+        } else {
+          Message(`Connection Initialized (${getModelsFromFolder?.length} models)!`);
         }
-
-        return Connection.$mongoConnection;
-      } else Message('Unable to connect to MongoDB!', true);
-    });
+      } else {
+        Message('Unable to connect to MongoDB!', true);
+      }
+    } catch (e) {
+      Message(`Error: ${e.message}`, true);
+    }
   }
 
   /**
@@ -95,7 +127,7 @@ class Connection {
    * // Usage:
    * const modelPath = Connection.checkAndReturnModelPath();
    **/
-  private checkAndReturnModelPath() {
+  private static checkAndReturnModelPath() {
     const paths = [path.join(process.cwd(), './src/models'), path.join(process.cwd(), './dist/models'), path.join(process.cwd(), './models')];
 
     let modelPath = '';
