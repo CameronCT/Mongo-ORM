@@ -1,9 +1,8 @@
 import MongoODM from '@cameronct/mongo-odm';
 import { MongoClient } from 'mongodb';
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 
 const uri = 'mongodb://127.0.0.1:27017/performance_test';
-new MongoODM.Connection(uri);
 
 function generateTestData() {
   const documents = Array.from({ length: 50000 }, (_, index) => ({
@@ -72,7 +71,7 @@ async function runMongooseTest() {
 }
 
 async function runMeTest() {
-  new MongoODM.Connection(uri); // Create a new instance of MongoODM.Connection
+  await MongoODM.connect(uri);
 
   // Model
   const MongoModel = new MongoODM.Model('mongoodm', [
