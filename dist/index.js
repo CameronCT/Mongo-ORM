@@ -27664,11 +27664,11 @@ var _Connection = class _Connection {
    */
   static async create(uri = "mongodb://127.0.0.1:27017/newapp", modelPath = _Connection.checkAndReturnModelPath(), onConnect) {
     const connection = new _Connection(uri, modelPath);
-    await connection.initialize(onConnect);
+    await connection.initialize(uri, onConnect);
     return connection;
   }
-  async initialize(onConnect) {
-    const client = new import_mongodb.MongoClient("mongodb://127.0.0.1:27017/newapp");
+  async initialize(uri, onConnect) {
+    const client = new import_mongodb.MongoClient(uri || "mongodb://127.0.0.1:27017/newapp");
     try {
       await client.connect();
       _Connection.$mongoConnection = client.db();

@@ -63,12 +63,12 @@ class Connection {
     onConnect?: (models: number) => void
   ): Promise<Connection> {
     const connection = new Connection(uri, modelPath);
-    await connection.initialize(onConnect);
+    await connection.initialize(uri, onConnect);
     return connection;
   }
 
-  private async initialize(onConnect?: (models: number) => void): Promise<void> {
-    const client = new MongoClient('mongodb://127.0.0.1:27017/newapp');
+  private async initialize(uri: string, onConnect?: (models: number) => void): Promise<void> {
+    const client = new MongoClient(uri || 'mongodb://127.0.0.1:27017/newapp');
 
     try {
       await client.connect();

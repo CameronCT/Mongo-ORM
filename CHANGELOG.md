@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.91] - 2024-08-20 
+
+- Fixed issue with `MongoODM.Connection` not allowing custom `uri`
+
 ## [0.1.90] - 2024-07-08
 
 - Updated `MongoODM.Connection` to use async to prevent further execution of database queries. (#6)
