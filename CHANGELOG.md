@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.92] - 2025-01-05
+
+- Fixed issue with indexes not creating. (#11)
+
 ## [0.1.91] - 2024-08-20 
 
 - Fixed issue with `MongoODM.Connection` not allowing custom `uri`
