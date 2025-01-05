@@ -2,6 +2,10 @@ import { Db, Filter, BSON, FindOptions, AggregateOptions } from 'mongodb';
 
 declare class Model {
     /**
+     * The `Collection` instance
+     */
+    private $connection;
+    /**
      * The `QueryBuilder` instance
      */
     private $queryBuilder;
