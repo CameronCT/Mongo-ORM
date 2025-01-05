@@ -5,7 +5,7 @@ import User from './models/User';
 const app = express();
 const port = 5000;
 
-MongoODM.connect().then();
+MongoODM.connect("mongodb://127.0.0.1:27017/mongoodm").then();
 
 app.get('/test-db', async (req, res) => {
   let responseString = '';

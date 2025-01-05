@@ -10,7 +10,10 @@ const User = new MongoODM.Model(
     { name: 'mixed', type: MongoODM.FieldTypes.Mixed, default: null },
     { name: 'type', type: MongoODM.FieldTypes.String, default: 'basic' }
   ],
-  [{ name: 'uniqueEmail', fields: { email: 'text' } }],
+  [
+    { name: 'uniqueEmail', fields: { email: 'text' } },
+    { name: "courses", fields: { courses: -1 } }
+  ],
   {
     debug: true,
     log: 0
