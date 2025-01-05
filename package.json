@@ -1,6 +1,6 @@
 {
   "name": "@cameronct/mongo-odm",
-  "version": "0.1.91",
+  "version": "0.1.92",
   "description": "A very basic MongoDB ODM for Node.js",
   "homepage": "https://cameronct.github.io/Mongo-ODM",
   "main": "./dist/index.js",

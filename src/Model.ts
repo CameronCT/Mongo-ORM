@@ -24,8 +24,14 @@ import {
   MongoDispatchAction
 } from './types';
 import FieldTypes from './FieldTypes';
+import Connection from './Connection';
 
 class Model {
+  /** 
+   * The `Collection` instance
+   */
+  private $connection: Connection;
+
   /**
    * The `QueryBuilder` instance
    */
@@ -86,6 +92,8 @@ class Model {
 
     const checkBadFields = this.$fieldOptions.filter((field) => ['createdAt', 'updatedAt'].includes(field.name));
     if (checkBadFields?.length !== 0) throw new Error(`You cannot use the field names createdAt or updatedAt as they are reserved for the ORM.`);
+
+    this.generateIndexes().then();
   }
 
   /**
@@ -102,13 +110,32 @@ class Model {
    * await this.generateIndexes();
    */
   generateIndexes = async () => {
-    this.$indexOptions.forEach(async (index) => {
-      const params: { [key: string]: string | boolean } = {};
-      if (index.unique) params.unique = true;
-      if (index.name) params.name = index.name;
-      await this.$queryBuilder.createIndex(this.$name, index.fields, params);
-    });
-    Message(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`);
+    const waitForConnection = async () => {
+      return new Promise<void>((resolve) => {
+        const interval = setInterval(() => {
+          if (Connection.$mongoConnection) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 1000); // Check every second
+      });
+    };
+  
+    try {
+      await waitForConnection(); // Wait until the connection is established
+  
+      for (const index of this.$indexOptions) {
+        const params: { [key: string]: string | boolean } = {};
+        if (index.unique) params.unique = true;
+        if (index.name) params.name = index.name;
+  
+        await this.$queryBuilder.createIndex(this.$name, index.fields, params);
+      }
+  
+      Message(`Generated indexes for ${this.$name} (${this.$indexOptions.length} total).`);
+    } catch (error) {
+      Message(`Failed to generate indexes for ${this.$name}: ${error.message}`, true);
+    }
   };
 
   /**
